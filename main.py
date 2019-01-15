@@ -76,9 +76,7 @@ app.layout = html.Div([
 
     html.Br(),
 
-    dcc.Graph(
-        id='market-graph',
-    ),
+    html.Div(id='market-graph'),
 
     dash_table.DataTable(
         id='order-table',
@@ -178,47 +176,71 @@ def create_dropdown(n_clicks, keyword, options):
 
 
 @app.callback(
-    Output('market-graph', 'figure'),
+    Output('market-graph', 'children'),
    [Input('stock-ticker-input', 'value'),
     Input('date-picker-range', 'start_date'),
     Input('date-picker-range', 'end_date')
 ])
-def update_graph(ticker, startdate, enddate):
-    aggregate_data = []
+def update_graph(tickers, startdate, enddate):
 
-    data = None
-    while data is None:
-        try:
-            data, meta_data = ts.get_daily_adjusted(symbol='{}'.format(ticker[0]), outputsize='full')
+    graphs = []
 
-        except:
-            pass
-            time.sleep(5)
+    for ticker in tickers:
+        data = None
+        while data is None:
+            try:
+                data, meta_data = ts.get_daily_adjusted(symbol='{}'.format(ticker), outputsize='full')
 
-    data = data.reset_index()
+            except:
+                pass
+                time.sleep(5)
 
-    period = data.loc[(data['date'] >= startdate) & (data['date'] < enddate)]
-    data['date'] = pd.to_datetime(data['date'], format='%Y-%m-%d', )
+        data = data.reset_index()
 
-    trace = go.Ohlc(x=period['date'],
-                    open=period['1. open'],
-                    high=period['2. high'],
-                    low=period['3. low'],
-                    close=period['4. close'])
+        period = data.loc[(data['date'] >= startdate) & (data['date'] < enddate)]
+        data['date'] = pd.to_datetime(data['date'], format='%Y-%m-%d', )
 
-    aggregate_data.append(trace)
+        candlesticks = go.Ohlc(x=period['date'],
+                        open=period['1. open'],
+                        high=period['2. high'],
+                        low=period['3. low'],
+                        close=period['4. close'])
 
-    layout = go.Layout(
-            title='Plot',
-            width=1250,
-            height=750,
-            xaxis = dict(),
-            yaxis = dict(),
-        )
+        volume = go.Bar(x=period['date'],
+                        y=period['6. volume'],
+                        yaxis='y2',
+                        marker=dict(
+                            color='rgb(204,204,204)'),
+                        opacity=.3)
 
-    fig = go.Figure(data=aggregate_data, layout=layout)
+        layout = go.Layout(
+                title='{}'.format(ticker),
+                width=1250,
+                height=750,
+                xaxis = dict(),
+                yaxis=dict(
+                    title='Value $',
+                    # anchor='free'
+                ),
+                yaxis2=dict(
+                    title='Volume',
+                    # titlefont=dict(
+                    #     color='rgb(148, 103, 189)'
+                    # ),
+                    # tickfont=dict(
+                    #     color='rgb(148, 103, 189)'
+                    # ),
+                    overlaying='y',
+                    side='right'
+                )
+            )
 
-    return fig
+        fig = go.Figure(data=[candlesticks, volume], layout=layout)
+
+        graphs.append(dcc.Graph(figure=fig))
+
+    return graphs
+
 
 ################################################################################
 @app.callback(

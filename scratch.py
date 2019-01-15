@@ -44,23 +44,25 @@ def nearest(items, pivot):
 
 data, meta_data = ts.get_daily_adjusted(symbol='MSFT', outputsize='full')
 
+print(data)
+
 earlier = '1998-01-10'
 later = '2018-12-01'
 
-period = data.loc[(data['date'] >= earlier) & (data['date'] < later)]
-data['date'] = pd.to_datetime(data['date'], format='%Y-%m-%d',)
-
-trace = go.Ohlc(x=period['date'],
-                open=period['1. open'],
-                high=period['2. high'],
-                low=period['3. low'],
-                close=period['4. close'])
-data = [trace]
-layout = {
-    'title': 'The Great Recession',
-    'yaxis': {'title': 'MSFT Stock'},
-}
-fig = dict(data=data, layout=layout)
-py.iplot(fig, filename='Candlestick', auto_open=True)
+# period = data.loc[(data['date'] >= earlier) & (data['date'] < later)]
+# data['date'] = pd.to_datetime(data['date'], format='%Y-%m-%d',)
+#
+# trace = go.Ohlc(x=period['date'],
+#                 open=period['1. open'],
+#                 high=period['2. high'],
+#                 low=period['3. low'],
+#                 close=period['4. close'])
+# data = [trace]
+# layout = {
+#     'title': 'The Great Recession',
+#     'yaxis': {'title': 'MSFT Stock'},
+# }
+# fig = dict(data=data, layout=layout)
+# py.iplot(fig, filename='Candlestick', auto_open=True)
 
 
