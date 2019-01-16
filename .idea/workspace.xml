@@ -22,8 +22,8 @@
     <option name="FILTER_BY_CURRENT_PROJECT" value="true" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ccddd771-0570-43b5-bf57-5de075605532" name="Default Changelist" comment="tabs">
-      <change beforePath="$PROJECT_DIR$/README.markdown" beforeDir="false" afterPath="$PROJECT_DIR$/README.markdown" afterDir="false" />
+    <list default="true" id="ccddd771-0570-43b5-bf57-5de075605532" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -81,23 +81,27 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
+          <entry key="markdown" value="1" />
           <entry key="py" value="6" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
+          <entry key="Markdown" value="1" />
           <entry key="Python" value="6" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
+          <entry key="markdown" value="21" />
           <entry key="py" value="1909" />
-          <entry key="txt" value="19" />
+          <entry key="txt" value="22" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="19" />
+          <entry key="Markdown" value="21" />
+          <entry key="PLAIN_TEXT" value="22" />
           <entry key="Python" value="1909" />
         </counts>
       </usages-collector>
@@ -105,14 +109,26 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main_tabs.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="211">
+            <state relative-caret-position="239">
               <caret line="51" column="38" selection-start-line="51" selection-start-column="38" selection-end-line="51" selection-end-column="38" />
               <folding>
                 <element signature="e#0#34#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/README.markdown">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="15">
+                <caret line="1" column="78" selection-start-line="1" selection-start-column="78" selection-end-line="1" selection-end-column="78" />
+              </first_editor>
+              <second_editor />
             </state>
           </provider>
         </entry>
@@ -134,6 +150,7 @@
       <find>df_symbol</find>
       <find>market</find>
       <find>US</find>
+      <find>Inst</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -151,6 +168,7 @@
         <option value="$PROJECT_DIR$/main.py" />
         <option value="$PROJECT_DIR$/tabs.py" />
         <option value="$PROJECT_DIR$/main_tabs.py" />
+        <option value="$PROJECT_DIR$/README.markdown" />
       </list>
     </option>
   </component>
@@ -362,11 +380,26 @@
       <option name="project" value="LOCAL" />
       <updated>1547601315928</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="gif">
+      <created>1547604768113</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1547604768113</updated>
+    </task>
+    <task id="LOCAL-00004" summary="gif">
+      <created>1547604782823</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1547604782823</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="44" y="23" width="1271" height="877" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.184703" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -403,7 +436,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="multiple graphs" />
     <MESSAGE value="tabs" />
-    <option name="LAST_COMMIT_MESSAGE" value="tabs" />
+    <MESSAGE value="gif" />
+    <option name="LAST_COMMIT_MESSAGE" value="gif" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/../Dash-Fractal-Explorer/MandelBrot.py">
@@ -515,11 +549,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main_tabs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="211">
+        <state relative-caret-position="239">
           <caret line="51" column="38" selection-start-line="51" selection-start-column="38" selection-end-line="51" selection-end-column="38" />
           <folding>
             <element signature="e#0#34#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.markdown">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="15">
+            <caret line="1" column="78" selection-start-line="1" selection-start-column="78" selection-end-line="1" selection-end-column="78" />
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>
