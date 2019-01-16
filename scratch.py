@@ -66,27 +66,13 @@ ti = TechIndicators(key='9IDB37CDHYIC07UE', output_format='pandas', indexing_typ
 #             * 8 = MESA Adaptive Moving Average (MAMA)
 #     """
 
+
 def nearest(items, pivot):
     return min(items, key=lambda x: abs(x - dt.strptime(pivot, '%Y-%m-%d')))
-# dt.strptime(x, '%Y-%m-%d')
 
-ticker = 'AAPL'
-startdate = '2018-01-14'
-enddate = '2019-01-14'
-
-data1, meta1 = ts.get_daily_adjusted(symbol='{}'.format(ticker), outputsize='full')
-data2, meta2 = ti.get_bbands(symbol='{}'.format(ticker), interval='daily', time_period=60,
-                             series_type='close',
-                             nbdevup=None, nbdevdn=None, matype=None)
-data1 = data1.reset_index()
-data2 = data2.reset_index()
-
-data1 = data1.loc[(data1['date'] >= startdate) & (data1['date'] < enddate)]
-data2 = data2.loc[(data2['date'] >= startdate) & (data2['date'] < enddate)]
-
-period = data1.merge(data2, on='date', how='left')
-
-print(period)
+symbols = ['AAPL', 'GOOG', 'MSFT', 'AMZN']
+quotes = ts.get_quote_endpoint('AAPL')
+print(quotes)
 
 # earlier = '1998-01-10'
 # later = '2018-12-01'

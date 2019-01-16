@@ -100,13 +100,26 @@ def render_content(tab):
 
     elif tab == 'tab-2':
         return html.Div([
+            dcc.Upload(
+                id='table-upload',
+                children=html.Div([
+                    'Drag and Drop or ',
+                    html.A('Select Files')
+                ]),
+                style={
+                    'width': '100%', 'height': '60px', 'lineHeight': '60px',
+                    'borderWidth': '1px', 'borderStyle': 'dashed',
+                    'borderRadius': '5px', 'textAlign': 'center', 'margin': '10px'
+                },
+            ),
+
             dash_table.DataTable(
                 id='order-table',
                 columns=(
                     [{'id': 'Ticker', 'name': 'Ticker', 'type': 'dropdown'},
                      {'id': 'Action', 'name': 'Action', 'type': 'dropdown'},
-                     {'id': 'Unit', 'name': 'Unit', 'type': 'dropdown'},  # Check 'number'
-                     {'id': 'Amount', 'name': 'Amount'},
+                     {'id': 'Unit', 'name': 'Unit', 'type': 'dropdown'},
+                     {'id': 'Amount', 'name': 'Amount'},    # TODO: Make numbers only
                      {'id': 'Date', 'name': 'Date'},
                      {'id': 'Time', 'name': 'Time'}]
                 ),
@@ -237,13 +250,14 @@ def update_graph(tickers, startdate, enddate):
             period = data1.merge(data2, on='date', how='left')
 
             bband_mid = go.Scatter(x=period['date'],
-                                y=period['Real Middle Band'],
-                                mode='lines',
-                                line=dict(
-                                    width=1,
-                                    color='rgb(150, 150, 150)'
-                                    )
-                                )
+                                   y=period['Real Middle Band'],
+                                   mode='lines',
+                                   line=dict(
+                                       width=1,
+                                       color='rgb(150, 150, 150)'
+                                       ),
+                                   name='Real Middle Band'
+                                ),
 
             bband_low = go.Scatter(x=period['date'],
                                    y=period['Real Upper Band'],
@@ -251,7 +265,8 @@ def update_graph(tickers, startdate, enddate):
                                    line=dict(
                                        width=1,
                                        color='rgb(150, 150, 150)'
-                                   )
+                                   ),
+                                   name='Real Upper Band'
                                 )
 
             bband_high = go.Scatter(x=period['date'],
@@ -260,35 +275,38 @@ def update_graph(tickers, startdate, enddate):
                                    line=dict(
                                        width=1,
                                        color='rgb(150, 150, 150)'
-                                   )
+                                   ),
+                                   name='Real Lower Band'
                                 )
 
             candlesticks = go.Candlestick(x=period['date'], # or go.Ohlc
-                            open=period['1. open'],
-                            high=period['2. high'],
-                            low=period['3. low'],
-                            close=period['4. close'])
+                                          open=period['1. open'],
+                                          high=period['2. high'],
+                                          low=period['3. low'],
+                                          close=period['4. close'],
+                                          name='Candlestick')
 
             volume = go.Bar(x=period['date'],
                             y=period['6. volume'],
                             yaxis='y2',
                             marker=dict(
                                 color='rgb(204,204,204)'),
-                            opacity=.3)
+                            opacity=.3,
+                            name='Volume')
 
             layout = go.Layout(
                     title='{}'.format(ticker),
                     width=1250,
                     height=750,
-                    xaxis = dict(),
+                    xaxis=dict(),
                     yaxis=dict(
-                        title='Value $',
-                        # anchor='free'
+                        title='Value $USD',
                     ),
                     yaxis2=dict(
                         title='Volume',
                         overlaying='y',
-                        side='right'
+                        side='right',
+                        anchor='free'
                     )
                 )
 
@@ -431,7 +449,6 @@ def update_pie(rows, hoverdata):
 
     pie=go.Pie(values=values,
                labels=positions,
-               name="Institution",
                hoverinfo="label+percent+name",
                hole=.5,
                pull=pull,
