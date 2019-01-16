@@ -1,2 +1,2 @@
 # DashFinance
-![alt text]()
+![alt text](https://github.com/SterlingButters/DashFinance/blob/master/MyMovie.gif)
