@@ -57,6 +57,7 @@ app.layout = html.Div([
     dcc.Tabs(id="tabs", value='tab-1', children=[
         dcc.Tab(label='Research', value='tab-1'),
         dcc.Tab(label='Activity/Performance', value='tab-2'),
+        dcc.Tab(label='Loan Calculator', value='tab-3')
     ]),
     html.Div(id='tabs-content')
 ])
@@ -178,15 +179,60 @@ def render_content(tab):
                     {'name': 'Shares', 'id': 'Shares'},
                     {'name': 'Value', 'id': 'Value'},
                     {'name': 'Equity', 'id': 'Equity'},
-                    {'name': 'Est Gain/Loss', 'id': 'Gain-Loss'},
+                    {'name': 'Est Gain/Loss', 'id': 'GainLoss'},
                 ],
                 data=[],
+                style_data_conditional=[
+                    {
+                        'if': {'row_index': 'odd'},
+                        'backgroundColor': 'rgb(248, 248, 248)'
+                    },
+                    {
+                        'if': {
+                            'column_id': 'GainLoss',
+                            'filter': 'GainLoss > num(0.0)'
+                        },
+                        'backgroundColor': '#3D9970',
+                        'color': 'white',
+                    },
+                    {
+                        'if': {
+                            'column_id': 'GainLoss',
+                            'filter': 'GainLoss < num(0.0)'
+                        },
+                        'backgroundColor': '#F55C57',
+                        'color': 'white',
+                    },
+                ]
             ),
 
             dcc.Graph(
                 id='asset-distribution',
             ),
 
+        ])
+
+    elif tab == 'tab-3':
+        return html.Div([
+            dcc.Input(
+                id='',
+                placeholder='Enter Loan Amount',
+                type='text',
+                value=''
+            ),
+            dcc.Input(
+                id='',
+                placeholder='Enter Down Payment',
+                type='text',
+                value=''
+            ),
+            html.P("APR %"),
+            dcc.Slider(
+                id='apr-rate',
+                min=0,
+                max=25,
+                value=5,
+            )
         ])
 
 
@@ -351,7 +397,7 @@ def compute_positions(rows, comp_rows):
     quantity = [row.get('Shares') for row in comp_rows]
     values = [row.get('Value') for row in comp_rows]
     equities = [row.get('Equity') for row in comp_rows]
-    gain_losses = [row.get('Gain-Loss') for row in comp_rows]
+    gain_losses = [row.get('GainLoss') for row in comp_rows]
 
     if len(tickers) > 0:
         latest = [tickers[-1], actions[-1], units[-1], amounts[-1], dates[-1]]
@@ -407,14 +453,14 @@ def compute_positions(rows, comp_rows):
                     equities[p] += equity
                     gain_losses[p] += gain_loss
 
-                    comp_rows[p] = {'Position': positions[p], 'Type': 'Stock', 'Shares': quantity[p], 'Value': values[p], 'Equity': equity, 'Gain-Loss': gain_losses[p]}
+                    comp_rows[p] = {'Position': positions[p], 'Type': 'Stock', 'Shares': quantity[p], 'Value': values[p], 'Equity': equity, 'GainLoss': gain_losses[p]}
                 except:
                     comp_rows.append(
                         {'Position': tickers[-1], 'Type': 'Stock', 'Shares': shares, 'Value': value, 'Equity': equity,
-                         'Gain-Loss': gain_loss})
+                         'GainLoss': gain_loss})
 
             else:
-                comp_rows.append({'Position': tickers[-1], 'Type': 'Stock', 'Shares': shares, 'Value': value, 'Equity': equity, 'Gain-Loss': gain_loss})
+                comp_rows.append({'Position': tickers[-1], 'Type': 'Stock', 'Shares': shares, 'Value': value, 'Equity': equity, 'GainLoss': gain_loss})
 
     return comp_rows
 
