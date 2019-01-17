@@ -425,7 +425,7 @@ def compute_positions(rows, comp_rows):
     positions = [row.get('Position') for row in comp_rows]
     quantity = [row.get('Shares') for row in comp_rows]
     values = [row.get('Value') for row in comp_rows]
-    equities = [row.get('Equity') for row in comp_rows]
+    basises = [row.get('Equity') for row in comp_rows]
     gain_losses = [row.get('GainLoss') for row in comp_rows]
 
     if len(tickers) > 0:
@@ -463,15 +463,15 @@ def compute_positions(rows, comp_rows):
             market_now = get_market(tickers[-1], now)
 
             if units[-1] == 'SHARES':
-                equity = amounts[-1]*market_then
+                basis = amounts[-1]*market_then
                 value = amounts[-1]*market_now
                 shares = amounts[-1]
             else:
-                equity = amounts[-1]
+                basis = amounts[-1]
                 shares = amounts[-1]/market_then
                 value = shares*market_now
 
-            gain_loss = value - equity
+            gain_loss = value - basis
 
             if len(positions) > 0:
                 try:
@@ -479,17 +479,17 @@ def compute_positions(rows, comp_rows):
 
                     values[p] += value
                     quantity[p] += shares
-                    equities[p] += equity
+                    basises[p] += basis
                     gain_losses[p] += gain_loss
 
-                    comp_rows[p] = {'Position': positions[p], 'Type': 'Stock', 'Shares': quantity[p], 'Value': values[p], 'Equity': equity, 'GainLoss': gain_losses[p]}
+                    comp_rows[p] = {'Position': positions[p], 'Type': 'Stock', 'Shares': quantity[p], 'Value': values[p], 'Basis': basis, 'GainLoss': gain_losses[p]}
                 except:
                     comp_rows.append(
-                        {'Position': tickers[-1], 'Type': 'Stock', 'Shares': shares, 'Value': value, 'Equity': equity,
+                        {'Position': tickers[-1], 'Type': 'Stock', 'Shares': shares, 'Value': value, 'Basis': basis,
                          'GainLoss': gain_loss})
 
             else:
-                comp_rows.append({'Position': tickers[-1], 'Type': 'Stock', 'Shares': shares, 'Value': value, 'Equity': equity, 'GainLoss': gain_loss})
+                comp_rows.append({'Position': tickers[-1], 'Type': 'Stock', 'Shares': shares, 'Value': value, 'Basis': basis, 'GainLoss': gain_loss})
 
     return comp_rows
 
