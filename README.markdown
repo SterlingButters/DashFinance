@@ -6,12 +6,16 @@ The gif WILL play if you give it long enough, its 32 Mb large.
 
 
 TODO List:
-- File upload support for Orders
+- AuthLogin
 - Store Data
 - Support for correcting entered orders; current implementation only updates
 in position table based on last entry i.e. if you delete an order entry that 
 isn't that last one, the position table will then be incorrect. This was done 
 to avoid too many API calls which REALLY slowed things down
+
+        https://blog.rapidapi.com/best-finance-apis/
+        https://rapidapi.com/collection/stock-market-apis
+
 - Get Quotes 
 - Annualized Returns
 - Biggest movers

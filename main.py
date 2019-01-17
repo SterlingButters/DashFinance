@@ -13,6 +13,8 @@ import pandas as pd
 from datetime import datetime as dt
 import numpy as np
 import time
+import base64
+import io
 
 from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.techindicators import TechIndicators
@@ -102,7 +104,7 @@ def render_content(tab):
     elif tab == 'tab-2':
         return html.Div([
             dcc.Upload(
-                id='table-upload',
+                id='orders-upload',
                 children=html.Div([
                     'Drag and Drop or ',
                     html.A('Select Files')
@@ -364,22 +366,39 @@ def update_graph(tickers, startdate, enddate):
 
 
 ################################################################################
+def parse_contents(contents, filename):
+    content_type, content_string = contents.split(',')
+    decoded = base64.b64decode(content_string)
+    if 'csv' in filename:
+        # Assume that the user uploaded a CSV file
+        return pd.read_csv(
+            io.StringIO(decoded.decode('utf-8')))
+    elif 'xls' in filename:
+        # Assume that the user uploaded an excel file
+        return pd.read_excel(io.BytesIO(decoded))
+
+
 @app.callback(
     Output('order-table', 'data'),
-    [Input('add-order-button', 'n_clicks')],
+    [Input('add-order-button', 'n_clicks'),
+     Input('orders-upload', 'contents')],
     [State('order-table', 'data'),
      State('order-table', 'columns'),
-     State('order-date', 'date')])
-def add_row(n_clicks, rows, columns, date):
-
+     State('order-date', 'date'),
+     State('orders-upload', 'filename')])
+def add_row(n_clicks, contents, rows, columns, date, filename):
     if n_clicks > 0:
         rows.append({'Amount': 0, 'Date': str(date), 'Time': '-'})
+
+    if contents is not None:
+        df = parse_contents(contents, filename)
+        rows.extend(df.to_dict('rows'))
 
     return rows
 
 ##########################################
 
-
+# TODO: Update in efficient way preferably with timestamps
 @app.callback(
     Output('computed-table', 'data'),
     [Input('order-table', 'data'),],
