@@ -71,6 +71,9 @@ def render_content(tab):
     if tab == 'tab-1':
         return html.Div([
 
+            # dcc.Store(id='ticker-options-memory', storage_type='local'), # For DropDown Options
+            # dcc.Store(id='ticker-selection-memory', storage_type='session'), # For DropDown Values
+
             dcc.Dropdown(
                 id='stock-ticker-input',
                 multi=True,
@@ -103,6 +106,10 @@ def render_content(tab):
 
     elif tab == 'tab-2':
         return html.Div([
+
+            # dcc.Store(id='order-table-memory', storage_type='local'),  # For Order Table Entries
+            # dcc.Store(id='computed-table-entry', storage_type='session'),  # For Computed Table Entries
+
             dcc.Upload(
                 id='orders-upload',
                 children=html.Div([
@@ -387,16 +394,19 @@ def parse_contents(contents, filename):
      State('order-date', 'date'),
      State('orders-upload', 'filename')])
 def add_row(n_clicks, contents, rows, columns, date, filename):
+    # TODO: Figure out how to add row w/o uploading
     if n_clicks > 0:
         rows.append({'Amount': 0, 'Date': str(date), 'Time': '-'})
 
-    if contents is not None:
-        df = parse_contents(contents, filename)
-        rows.extend(df.to_dict('rows'))
+    else:
+        if contents is not None:
+            df = parse_contents(contents, filename)
+            rows.extend(df.to_dict('rows'))
 
     return rows
 
 ##########################################
+
 
 # TODO: Update in efficient way preferably with timestamps
 @app.callback(
