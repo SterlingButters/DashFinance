@@ -8,9 +8,11 @@ from dash.dependencies import Output, State, Input
 
 import plotly.graph_objs as go
 import pandas as pd
-# pd.set_option('display.max_columns', 500)
+pd.set_option('display.max_columns', 500)
 
 from datetime import datetime as dt
+from datetime import timedelta
+
 import numpy as np
 import time
 import base64
@@ -91,8 +93,9 @@ def render_content(tab):
 
             dcc.DatePickerRange(
                 id='date-picker-range',
-                start_date_placeholder_text='Start Date',
+                # start_date_placeholder_text= ,
                 max_date_allowed=dt.date(dt.today()),
+                start_date=dt.date(dt.today()) - timedelta(days=30),
                 end_date=dt.date(dt.today()),
                 calendar_orientation='vertical',
             ),
@@ -361,11 +364,11 @@ def update_graph(tickers, startdate, enddate):
                         title='Volume',
                         overlaying='y',
                         side='right',
-                        anchor='free'
+                        # anchor='free'
                     )
                 )
 
-            fig = go.Figure(data=[bband_mid, bband_low, bband_high, candlesticks, volume], layout=layout)
+            fig = go.Figure(data=[bband_low, bband_high, candlesticks, volume], layout=layout)
 
             graphs.append(dcc.Graph(figure=fig))
 
@@ -394,7 +397,7 @@ def parse_contents(contents, filename):
      State('order-date', 'date'),
      State('orders-upload', 'filename')])
 def add_row(n_clicks, contents, rows, columns, date, filename):
-    # TODO: Figure out how to add row w/o uploading
+    # TODO: Allow upload at any point
     if n_clicks > 0:
         rows.append({'Amount': 0, 'Date': str(date), 'Time': '-'})
 

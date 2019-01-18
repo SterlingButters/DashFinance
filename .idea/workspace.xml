@@ -22,7 +22,10 @@
     <option name="FILTER_BY_CURRENT_PROJECT" value="true" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ccddd771-0570-43b5-bf57-5de075605532" name="Default Changelist" comment="" />
+    <list default="true" id="ccddd771-0570-43b5-bf57-5de075605532" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main_memory.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_memory.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +44,7 @@
     <SUITE FILE_PATH="coverage/DashFinance$tabs.coverage" NAME="tabs Coverage Results" MODIFIED="1547583966572" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/DashFinance$upload.coverage" NAME="upload Coverage Results" MODIFIED="1547759957121" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Finance$date_function.coverage" NAME="date_function Coverage Results" MODIFIED="1547518586180" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/DashFinance$main_memory.coverage" NAME="main_memory Coverage Results" MODIFIED="1547768646579" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/DashFinance$main_memory.coverage" NAME="main_memory Coverage Results" MODIFIED="1547836709992" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FUSProjectUsageTrigger">
     <session id="-502460475">
@@ -82,27 +85,27 @@
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="markdown" value="3" />
-          <entry key="py" value="14" />
+          <entry key="py" value="15" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="Markdown" value="3" />
-          <entry key="Python" value="14" />
+          <entry key="Python" value="15" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="markdown" value="948" />
-          <entry key="py" value="3091" />
-          <entry key="txt" value="56" />
+          <entry key="py" value="3230" />
+          <entry key="txt" value="68" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Markdown" value="948" />
-          <entry key="PLAIN_TEXT" value="56" />
-          <entry key="Python" value="3091" />
+          <entry key="PLAIN_TEXT" value="68" />
+          <entry key="Python" value="3230" />
         </counts>
       </usages-collector>
     </session>
@@ -112,7 +115,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/store.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
+            <state relative-caret-position="195">
               <caret line="13" selection-start-line="13" selection-end-line="21" selection-end-column="52" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
@@ -124,8 +127,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main_memory.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="294">
-              <caret line="398" column="12" lean-forward="true" selection-start-line="398" selection-start-column="12" selection-end-line="398" selection-end-column="12" />
+            <state relative-caret-position="217">
+              <caret line="370" column="34" selection-start-line="370" selection-start-column="34" selection-end-line="370" selection-end-column="34" />
               <folding>
                 <element signature="e#0#34#0" expanded="true" />
               </folding>
@@ -148,8 +151,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scratch.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="47" column="24" lean-forward="true" selection-start-line="47" selection-start-column="24" selection-end-line="47" selection-end-column="24" />
+            <state relative-caret-position="120">
+              <caret line="8" column="22" lean-forward="true" selection-start-line="8" selection-end-line="9" />
               <folding>
                 <element signature="e#0#47#0" expanded="true" />
                 <marker date="1547760983947" expanded="true" signature="868:1747" ph="..." />
@@ -179,9 +182,14 @@
       <find>Gain-Loss</find>
       <find>df_symbol</find>
       <find>df_symbol.Co</find>
+      <find>Equity</find>
     </findStrings>
     <replaceStrings>
       <replace>GainLoss</replace>
+      <replace>basis</replace>
+      <replace>bases</replace>
+      <replace>basises</replace>
+      <replace>Basis</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -456,19 +464,33 @@
       <option name="project" value="LOCAL" />
       <updated>1547761379307</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="order-uploads">
+      <created>1547769006512</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1547769006512</updated>
+    </task>
+    <task id="LOCAL-00010" summary="terminology">
+      <created>1547769242549</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1547769242549</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="44" y="23" width="1318" height="877" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1669279" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1669279" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.3299363" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3299363" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -502,7 +524,8 @@
     <MESSAGE value="dragndrop" />
     <MESSAGE value="readme" />
     <MESSAGE value="order-uploads" />
-    <option name="LAST_COMMIT_MESSAGE" value="order-uploads" />
+    <MESSAGE value="terminology" />
+    <option name="LAST_COMMIT_MESSAGE" value="terminology" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/../Dash-Fractal-Explorer/MandelBrot.py">
@@ -617,18 +640,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scratch.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="47" column="24" lean-forward="true" selection-start-line="47" selection-start-column="24" selection-end-line="47" selection-end-column="24" />
-          <folding>
-            <element signature="e#0#47#0" expanded="true" />
-            <marker date="1547760983947" expanded="true" signature="868:1747" ph="..." />
-            <marker date="1547760983947" expanded="true" signature="869:1705" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/README.markdown">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
@@ -641,7 +652,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/store.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
+        <state relative-caret-position="195">
           <caret line="13" selection-start-line="13" selection-end-line="21" selection-end-column="52" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
@@ -649,10 +660,22 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/scratch.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="22" lean-forward="true" selection-start-line="8" selection-end-line="9" />
+          <folding>
+            <element signature="e#0#47#0" expanded="true" />
+            <marker date="1547760983947" expanded="true" signature="868:1747" ph="..." />
+            <marker date="1547760983947" expanded="true" signature="869:1705" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/main_memory.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="294">
-          <caret line="398" column="12" lean-forward="true" selection-start-line="398" selection-start-column="12" selection-end-line="398" selection-end-column="12" />
+        <state relative-caret-position="217">
+          <caret line="370" column="34" selection-start-line="370" selection-start-column="34" selection-end-line="370" selection-end-column="34" />
           <folding>
             <element signature="e#0#34#0" expanded="true" />
           </folding>
