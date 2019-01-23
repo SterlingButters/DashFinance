@@ -8,9 +8,11 @@ from dash.dependencies import Output, State, Input
 
 import plotly.graph_objs as go
 import pandas as pd
-# pd.set_option('display.max_columns', 500)
+pd.set_option('display.max_columns', 500)
 
 from datetime import datetime as dt
+from datetime import timedelta
+
 import numpy as np
 import time
 import base64
@@ -91,8 +93,9 @@ def render_content(tab):
 
             dcc.DatePickerRange(
                 id='date-picker-range',
-                start_date_placeholder_text='Start Date',
+                # start_date_placeholder_text= ,
                 max_date_allowed=dt.date(dt.today()),
+                start_date=dt.date(dt.today()) - timedelta(days=30),
                 end_date=dt.date(dt.today()),
                 calendar_orientation='vertical',
             ),
@@ -312,7 +315,7 @@ def update_graph(tickers, startdate, enddate):
                                        color='rgb(150, 150, 150)'
                                        ),
                                    name='Real Middle Band'
-                                ),
+                                )
 
             bband_low = go.Scatter(x=period['date'],
                                    y=period['Real Upper Band'],
@@ -361,10 +364,10 @@ def update_graph(tickers, startdate, enddate):
                         title='Volume',
                         overlaying='y',
                         side='right',
-                        anchor='free'
+                        # anchor='free'
                     )
                 )
-
+            # TODO: Bug here
             fig = go.Figure(data=[bband_mid, bband_low, bband_high, candlesticks, volume], layout=layout)
 
             graphs.append(dcc.Graph(figure=fig))
@@ -390,11 +393,10 @@ def parse_contents(contents, filename):
     [Input('add-order-button', 'n_clicks'),
      Input('orders-upload', 'contents')],
     [State('order-table', 'data'),
-     State('order-table', 'columns'),
      State('order-date', 'date'),
      State('orders-upload', 'filename')])
-def add_row(n_clicks, contents, rows, columns, date, filename):
-    # TODO: Figure out how to add row w/o uploading
+def add_row(n_clicks, contents, rows, date, filename):
+    # TODO: Allow upload at any point
     if n_clicks > 0:
         rows.append({'Amount': 0, 'Date': str(date), 'Time': '-'})
 
@@ -425,7 +427,7 @@ def compute_positions(rows, comp_rows):
     positions = [row.get('Position') for row in comp_rows]
     quantity = [row.get('Shares') for row in comp_rows]
     values = [row.get('Value') for row in comp_rows]
-    equities = [row.get('Equity') for row in comp_rows]
+    basises = [row.get('Equity') for row in comp_rows]
     gain_losses = [row.get('GainLoss') for row in comp_rows]
 
     if len(tickers) > 0:
@@ -463,15 +465,15 @@ def compute_positions(rows, comp_rows):
             market_now = get_market(tickers[-1], now)
 
             if units[-1] == 'SHARES':
-                equity = amounts[-1]*market_then
+                basis = amounts[-1]*market_then
                 value = amounts[-1]*market_now
                 shares = amounts[-1]
             else:
-                equity = amounts[-1]
+                basis = amounts[-1]
                 shares = amounts[-1]/market_then
                 value = shares*market_now
 
-            gain_loss = value - equity
+            gain_loss = value - basis
 
             if len(positions) > 0:
                 try:
@@ -479,23 +481,19 @@ def compute_positions(rows, comp_rows):
 
                     values[p] += value
                     quantity[p] += shares
-                    equities[p] += equity
+                    basises[p] += basis
                     gain_losses[p] += gain_loss
 
-                    comp_rows[p] = {'Position': positions[p], 'Type': 'Stock', 'Shares': quantity[p], 'Value': values[p], 'Equity': equity, 'GainLoss': gain_losses[p]}
+                    comp_rows[p] = {'Position': positions[p], 'Type': 'Stock', 'Shares': quantity[p], 'Value': values[p], 'Basis': basis, 'GainLoss': gain_losses[p]}
                 except:
                     comp_rows.append(
-                        {'Position': tickers[-1], 'Type': 'Stock', 'Shares': shares, 'Value': value, 'Equity': equity,
+                        {'Position': tickers[-1], 'Type': 'Stock', 'Shares': shares, 'Value': value, 'Basis': basis,
                          'GainLoss': gain_loss})
 
             else:
-                comp_rows.append({'Position': tickers[-1], 'Type': 'Stock', 'Shares': shares, 'Value': value, 'Equity': equity, 'GainLoss': gain_loss})
+                comp_rows.append({'Position': tickers[-1], 'Type': 'Stock', 'Shares': shares, 'Value': value, 'Basis': basis, 'GainLoss': gain_loss})
 
     return comp_rows
-
-
-################################################################################
-
 
 
 ################################################################################

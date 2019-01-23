@@ -47,36 +47,36 @@ app.layout = html.Div([
     ])
 ])
 
-# Create two callback for every store.
-for store in ('memory', 'local', 'session'):
-
-    # add a click to the appropriate store.
-    @app.callback(Output(store, 'data'),
-                  [Input('{}-button'.format(store), 'n_clicks')],
-                  [State(store, 'data')])
-    def on_click(n_clicks, data):
-        if n_clicks is None:
-            # Preventing the None callbacks is important with the store component,
-            # you don't want to update the store for nothing.
-            raise PreventUpdate
-
-        # Give a default data dict with 0 clicks if there's no data.
-        data = data or {'clicks': 0}
-
-        data['clicks'] = data['clicks'] + 1
-        return data
-
-    # output the stored clicks in the table cell.
-    @app.callback(Output('{}-clicks'.format(store), 'children'),
-                  [Input(store, 'modified_timestamp')],
-                  [State(store, 'data')])
-    def on_data(ts, data):
-        if ts is None:
-            raise PreventUpdate
-
-        data = data or {}
-
-        return data.get('clicks', 0)
+# # Create two callback for every store.
+# for store in ('memory', 'local', 'session'):
+#
+#     # add a click to the appropriate store.
+#     @app.callback(Output(store, 'data'),
+#                   [Input('{}-button'.format(store), 'n_clicks')],
+#                   [State(store, 'data')])
+#     def on_click(n_clicks, data):
+#         if n_clicks is None:
+#             # Preventing the None callbacks is important with the store component,
+#             # you don't want to update the store for nothing.
+#             raise PreventUpdate
+#
+#         # Give a default data dict with 0 clicks if there's no data.
+#         data = data or {'clicks': 0}
+#
+#         data['clicks'] = data['clicks'] + 1
+#         return data
+#
+#     # output the stored clicks in the table cell.
+#     @app.callback(Output('{}-clicks'.format(store), 'children'),
+#                   [Input(store, 'modified_timestamp')],
+#                   [State(store, 'data')])
+#     def on_data(ts, data):
+#         if ts is None:
+#             raise PreventUpdate
+#
+#         data = data or {}
+#
+#         return data.get('clicks', 0)
 
 
 if __name__ == '__main__':
