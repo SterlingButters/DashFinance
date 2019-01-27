@@ -691,5 +691,7 @@ def update_pie(rows, hoverdata):
     return fig
 
 
+server = app.server
+
 if __name__ == '__main__':
     app.run_server(debug=True)
