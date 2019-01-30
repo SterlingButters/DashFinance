@@ -4,6 +4,8 @@ The gif WILL play if you give it long enough, its 32 Mb large.
 
 ![alt text](https://github.com/SterlingButters/DashFinance/blob/master/Example.gif)
 
+or test it out on my first ever Heroku deployment:
+https://dashfinance-test.herokuapp.com
 
 TODO List:
 - Store Data; `dcc.Store( )` prevents loading of all subsequent components
