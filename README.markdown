@@ -8,6 +8,8 @@ or test it out on my first ever Heroku deployment:
 https://dashfinance-test.herokuapp.com
 
 TODO List:
+- Activity Monitoring: Plaid API; Figure out how to implement template into Dash App
+
 - Store Data; `dcc.Store( )` prevents loading of all subsequent components
 - AuthLogin; doesnt make sense to do until storage is implemented
 
@@ -33,7 +35,6 @@ to avoid too many API calls which REALLY slowed things down. Suggested solutions
     - Asset Distribution 
     - Est Gain as percentage of holdings
     - Est loss as percentage of holdings
-- Activity Monitoring: see Finicity API https://www.finicity.com
 - Reward Monitoring: see AwardWallet API & StoCard & Wallaby Alternatives
         
         https://awardwallet.com/api/loyalty#introduction 

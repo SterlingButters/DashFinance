@@ -13,9 +13,18 @@ from datetime import datetime as dt
 from datetime import timedelta
 
 import numpy as np
+from random import randint
 import time
 import base64
+import json
 import io
+import os
+
+import plaid
+import flask
+from flask import render_template
+from flask import request
+from flask import jsonify
 
 from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.techindicators import TechIndicators
@@ -29,8 +38,11 @@ df_symbol = pd.read_csv('tickers.csv')
 ################################################################################
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-app = dash.Dash(external_stylesheets=external_stylesheets)
+server = flask.Flask(__name__)
+server.secret_key = os.environ.get('secret_key', str(randint(0, 1000000)))
+app = dash.Dash(__name__, server=server, external_stylesheets=external_stylesheets)
 app.config['suppress_callback_exceptions'] = True
+
 
 app.layout = html.Div([
 
@@ -74,30 +86,65 @@ def render_content(tab):
 
             # dcc.Store(id='ticker-options-memory', storage_type='local'), # For DropDown Options
             # dcc.Store(id='ticker-selection-memory', storage_type='session'), # For DropDown Values
+            html.Div([
+                html.Div([
+                    dcc.Dropdown(
+                        id='stock-ticker-input',
+                        multi=True,
+                        style={'height': '52px'}),
+                    ],
+                    style=dict(
+                        width='50%',
+                        display='table-cell',
+                        verticalAlign="middle",
+                        ),
+                ),
 
-            dcc.Dropdown(
-                id='stock-ticker-input',
-                multi=True,
+                html.Div([
+                    dcc.Input(
+                        id='keyword',
+                        placeholder='Search Ticker Database',
+                        type='text',
+                        value='',
+                        style={'height': '52px'}
+                    ),
+                ],
+                    style=dict(
+                        width='10%',
+                        display='table-cell',
+                        verticalAlign="middle",
+                    ),
+                ),
+
+                html.Div([html.Button('Add Results to Dropdown', id='add-results-button', n_clicks=0,
+                                      style={'height': '52px'})],
+                         style=dict(
+                         display='table-cell',
+                         verticalAlign="middle",
+                         ),
+                    ),
+
+                html.Div([
+                    dcc.DatePickerRange(
+                        id='date-picker-range',
+                        max_date_allowed=dt.date(dt.today()),
+                        start_date=dt.date(dt.today()) - timedelta(days=60),
+                        end_date=dt.date(dt.today()),
+                        calendar_orientation='vertical',
+                    ),
+                ],
+                    style=dict(
+                        width='20%',
+                        display='table-cell',
+                        verticalAlign="middle",
+                    ),
+                ),
+            ], style=dict(
+                    width='100%',
+                    display='table',
+                    ),
             ),
 
-            dcc.Input(
-                id='keyword',
-                placeholder='Search Ticker Database',
-                type='text',
-                value=''
-            ),
-
-            html.Button('Add Results to Dropdown', id='add-results-button', n_clicks=0),
-            html.Br(),
-
-            dcc.DatePickerRange(
-                id='date-picker-range',
-                # start_date_placeholder_text= ,
-                max_date_allowed=dt.date(dt.today()),
-                start_date=dt.date(dt.today()) - timedelta(days=30),
-                end_date=dt.date(dt.today()),
-                calendar_orientation='vertical',
-            ),
             html.Br(),
             html.Div(id='market-graph'),
             html.Div(id='debug')
@@ -277,29 +324,12 @@ def render_content(tab):
 
     elif tab == 'tab-3':
         return html.Div([
-            dcc.Input(
-                id='',
-                placeholder='Enter Loan Amount',
-                type='text',
-                value=''
-            ),
-            dcc.Input(
-                id='',
-                placeholder='Enter Down Payment',
-                type='text',
-                value=''
-            ),
-            html.P("APR %"),
-            dcc.Slider(
-                id='apr-rate',
-                min=0,
-                max=25,
-                value=5,
-            )
+            dcc.Link('Navigate to "/"', href='/'),
         ])
 
 
 ################################################################################
+
 # TODO: Consider adding results to text file
 @app.callback(
     Output('stock-ticker-input', 'options'),
@@ -691,7 +721,9 @@ def update_pie(rows, hoverdata):
     return fig
 
 
-server = app.server
-
 if __name__ == '__main__':
+    # Production
+    # app.server.run(debug=True, threaded=True)
+
+    # Development
     app.run_server(debug=True)
