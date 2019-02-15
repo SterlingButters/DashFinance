@@ -7,6 +7,9 @@ The gif WILL play if you give it long enough, its 32 Mb large.
 or test it out on my first ever Heroku deployment:
 https://dashfinance-test.herokuapp.com
 
+### PreRequisites:
+- [Poppler](http://macappstore.org/poppler/)
+
 TODO List:
 - Activity Monitoring: Plaid API; Figure out how to implement template into Dash App
 
