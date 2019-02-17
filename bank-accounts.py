@@ -1,6 +1,7 @@
 # https://plaid.com/docs/#exchange-token-flow
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+import plotly.graph_objs as go
 import dash_html_components as html
 import dash_core_components as dcc
 import dash
@@ -10,8 +11,8 @@ import sd_material_ui
 from pdf2image import convert_from_bytes
 
 import os
+import numpy as np
 from flask import jsonify
-import base64
 import plaidash
 import datetime
 import time
@@ -22,7 +23,7 @@ app.config['suppress_callback_exceptions'] = True
 
 with open('/Users/sterlingbutters/.plaid/.credentials.json') as CREDENTIALS:
     KEYS = json.load(CREDENTIALS)
-    print(json.dumps(KEYS, indent=2))
+    # print(json.dumps(KEYS, indent=2))
 
     PLAID_CLIENT_ID = KEYS['client_id']
     PLAID_PUBLIC_KEY = KEYS['public_key']
@@ -46,21 +47,39 @@ def format_error(e):
 
 app.layout = html.Div([
     # Will lose the data when browser/tab closes.
-    dcc.Store(id='public-tokens', storage_type='session', data={'tokens': []}),
+    dcc.Store(id='public-tokens', storage_type='session', data={'tokens': [], 'institutions': []}),
     # TODO: Handle Expired Tokens (30 min)
     # TODO: Save credentials and LiveUpdate
     dcc.Dropdown(id='institution-dropdown'),
+    sd_material_ui.Stepper(
+        id='use-guide',
+        activeStep=0,
+        finishedText='Institution Added! Restart?',
+        stepCount=3,
+        stepLabels=['Open Plaid Link', 'Store Token', 'Select From Dropdown']
+    ),
     plaidash.LoginForm(
-                      id='plaid-link',
-                      clientName='Butters',
-                      env=PLAID_ENV,
-                      publicKey=PLAID_PUBLIC_KEY,
-                      product=PLAID_PRODUCTS,
-                      # institution=)
-            ),
+        id='plaid-link',
+        clientName='Butters',
+        env=PLAID_ENV,
+        publicKey=PLAID_PUBLIC_KEY,
+        product=PLAID_PRODUCTS,
+        # institution=)
+    ),
     html.Button('Store current token', id='store-button'), # TODO: Disable until token available
     sd_material_ui.Snackbar(id='token-alert', open=False, message='Token Added to Dropdown', action='Select It'),
-    sd_material_ui.Paper([html.Div(id='transaction-table')])
+    html.H1('Accounts & Balances', style=dict()),
+    html.Div(id='auth-container'),
+    html.H1('Credit & Loans', style=dict()),
+    html.Div(id='credit-container'),
+    html.H1('Transactions & Spending', style=dict()),
+    html.Div(id='transaction-container'),
+    html.H1('Budget & Bills', style=dict()),
+    html.Div(id='budgets-container'),
+    html.H1('Income & Cash Flow', style=dict()),
+    html.Div(id='income-container'),
+    html.H1('Assets & Property', style=dict()),
+    html.Div(id='asset-container'),
 ])
 
 client = plaid.Client(client_id=PLAID_CLIENT_ID,
@@ -81,27 +100,41 @@ def on_click(clicks, public_token, data):
         raise PreventUpdate
 
     stored_tokens = data['tokens'] or []
+    stored_institutions = data['institutions'] or []
+
     if public_token is not None and public_token not in stored_tokens:
         stored_tokens.append(public_token)
-    data = {'tokens': stored_tokens}
+
+        access_token = client.Item.public_token.exchange(public_token)['access_token']
+        try:
+            auth_response = client.Auth.get(access_token=access_token)
+
+        except plaid.errors.PlaidError as e:
+            return html.P('There was an error: {}'.format(format_error(e)))
+
+        institution = client.Institutions.get_by_id(auth_response.get('item')['institution_id']).get('institution')['name']
+        stored_institutions.append(institution)
+
+    data = {'tokens': stored_tokens, 'institutions': stored_institutions}
 
     return data
 
 
-# Alert User of new Token in Snackbar
+# # Alert User of new Token in Snackbar
 @app.callback(
     Output('token-alert', 'open'),
     [Input('store-button', 'n_clicks')],
     [State('public-tokens', 'data')])
 def open_snackbar(click: int, data):
     stored_tokens = data['tokens']
-    if click is not None and click > 0 and len(stored_tokens)>=1:
-        return True
-    else:
-        return False
+    if click is not None:
+        if click > 0 and len(stored_tokens) >= 1:
+            return True
+        else:
+            return False
 
 
-# Select newest token in DropDown for user
+# # Select newest token in DropDown for user
 @app.callback(
     Output('institution-dropdown', 'value'),
     [Input('token-alert', 'n_clicks')],
@@ -112,8 +145,7 @@ def click_snackbar(snackbar_click: int, data):
         return stored_tokens[-1]
 
 
-##################################################################
-# Create Options
+# Populate Dropdown from Memory
 @app.callback(Output('institution-dropdown', 'options'),
               [Input('public-tokens', 'modified_timestamp')],
               [State('public-tokens', 'data')])
@@ -123,29 +155,108 @@ def create_dropdown(timestamp, data):
 
     data = data or {}
     STORED_TOKENS = data.get('tokens')
+    STORED_INSTITUTIONS = data.get('institutions')
 
     options = []
-    for token in STORED_TOKENS:
-        options.append({'label': '{}'.format(token), 'value': '{}'.format(token)})
+    if STORED_TOKENS is not None:
+        for t in range(len(STORED_TOKENS)):
+            options.append({'label': '{}'.format(STORED_INSTITUTIONS[t]), 'value': '{}'.format(STORED_TOKENS[t])})
 
     return options
 
 
+######################### Auth/Balance #############################
 # Display Transactions from Token Memory
-@app.callback(Output('transaction-table', 'children'),
+@app.callback(Output('auth-container', 'children'),
+              [Input('institution-dropdown', 'value')],
+)
+def display_auth(public_token):
+    if public_token is None:
+        return "Navigate Plaid Link to Obtain Token"
+    else:
+        access_token = client.Item.public_token.exchange(public_token)['access_token']
+        print("Public Token '{}' was exchanged for Access Token '{}'".format(public_token, access_token))
+
+        try:
+            auth_response = client.Auth.get(access_token=access_token)
+
+        except plaid.errors.PlaidError as e:
+            return html.P('There was an error: {}'.format(format_error(e)))
+
+        # print(pretty_response(auth_response))
+
+        accounts = auth_response.get('accounts')
+        balances = [account['balances'] for account in accounts]
+
+        ids = [account['account_id'] for account in accounts]
+        availables = [balance['available'] for balance in balances] if type(balances)==list else balances['available']
+        currents = [balance['current'] for balance in balances] if type(balances)==list else balances['current']
+        currencies = [balance['iso_currency_code'] for balance in balances] if type(balances)==list else balances['iso_currency_code']
+        limits = [balance['limit'] for balance in balances] if type(balances)==list else balances['limit']
+
+        masks = [account['mask'] for account in accounts]
+        account_names = [account['name'] for account in accounts]
+        official_names = [account['official_name'] for account in accounts]
+        subtypes = [account['subtype'] for account in accounts]
+        types = [account['type'] for account in accounts]
+
+        accounts_ach = auth_response.get('numbers').get('ach')
+        accounts_eft = auth_response.get('numbers').get('eft')
+
+        # ACH Accounts
+        account_numbers = [account['account'] for account in accounts_ach]
+        routing_numbers = [account['routing'] for account in accounts_ach]
+        wire_numbers = [account['wire_routing'] for account in accounts_ach]
+
+        # EFT Accounts
+        account_numbers.extend([account['routing'] for account in accounts_eft])
+        routing_numbers.extend([account['routing'] for account in accounts_eft])
+        wire_numbers.extend([account['routing'] for account in accounts_eft])
+
+        # print(pretty_response(auth_response))
+
+        ACCOUNT_MEAT = []
+        for c in range(len(accounts_ach) + len(accounts_eft)):
+            ACCOUNT_MEAT.append(html.Tr([html.Td('{}/{}'.format(account_numbers[c], routing_numbers[c])),
+                                         html.Td('{}/{}'.format(account_names[c], official_names[c])),
+                                         html.Td('{}/{}'.format(types[c], subtypes[c])),
+                                         html.Td('{}'.format(currents[c])),
+                                         html.Td('{}/{}'.format(availables[c], limits[c])),
+                                         html.Td('{}/{}'.format(masks[c], currencies[c]))
+                                         ]))
+
+        ACCOUNTS = html.Div([
+            html.Table([
+                html.Thead([
+                    html.Tr([
+                        html.Th('Account/Routing #'),  # Account/Routing
+                        html.Th('Account'),            # Nickname/Official
+                        html.Th('Type'),               # Subtype/Type
+                        html.Th('Current Amount'),     # Current
+                        html.Th('Available/Limit'),    # Available/Limit
+                        html.Th('Mask/Currency'),      # Mask/Currency
+                    ])
+                ]),
+                html.Tbody([
+                    *ACCOUNT_MEAT,
+                ])
+            ])
+        ])
+
+        return ACCOUNTS
+######################### Auth/Balance #############################
+
+
+######################### Transactions #############################
+@app.callback(Output('transaction-container', 'children'),
               [Input('institution-dropdown', 'value')],
 )
 def display_transactions(public_token):
     if public_token is None:
         return "Navigate Plaid Link to Obtain Token"
     else:
-        ######################### Tokens #############################
         access_token = client.Item.public_token.exchange(public_token)['access_token']
-        print("Public Token '{}' was exchanged for Access Token '{}'".format(public_token, access_token))
 
-        ######################### Tokens #############################
-
-        ######################### Transactions #############################
         start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
         end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
 
@@ -160,7 +271,7 @@ def display_transactions(public_token):
 
         transactions = transaction_response.get('transactions')
 
-        names = [transaction['name'] for transaction in transactions]
+        transaction_names = [transaction['name'] for transaction in transactions]
         categories = [transaction['category'] for transaction in transactions]
         locations = [transaction['location'] for transaction in transactions]
         statuses = [transaction['pending'] for transaction in transactions]
@@ -171,7 +282,7 @@ def display_transactions(public_token):
 
         TRANSACTION_MEAT = []
         for b in range(len(transactions)):
-            TRANSACTION_MEAT.append(html.Tr([html.Td(names[b]), html.Td(amounts[b]),
+            TRANSACTION_MEAT.append(html.Tr([html.Td(transaction_names[b]), html.Td(amounts[b]),
                                              html.Td(dates[b]), html.Td(categories[b]),
                                              html.Td(statuses[b]),
                                              # html.Td(locations[b],
@@ -194,16 +305,101 @@ def display_transactions(public_token):
                     ])
                 ])
             ])
-        ######################### Transactions #############################
 
-        ######################### CreditDetails #############################
+        transactions = go.Pie(labels=categories, values=amounts,
+                              hole=.3,
+                              )
+        layout = dict(title='Categorical Spending')
+        transaction_pie = go.Figure(data=[transactions], layout=layout)
+        CATEGORY_SPENDING = dcc.Graph(figure=transaction_pie)
+
+        spending = go.Scatter(x=dates[::-1],
+                              y=np.cumsum(amounts[::-1]),
+                              fill='tozeroy')
+        layout2 = dict()
+        spending_plot = go.Figure(data=[spending], layout=layout2)
+        TIME_SPENDING = dcc.Graph(figure=spending_plot)
+
+        return html.Div([TRANSACTIONS, CATEGORY_SPENDING, TIME_SPENDING])
+######################### Transactions #############################
+
+
+######################### Income #############################
+@app.callback(Output('income-container', 'children'),
+              [Input('institution-dropdown', 'value')],
+              )
+def display_income(public_token):
+    if public_token is None:
+        return "Navigate Plaid Link to Obtain Token"
+    else:
+        access_token = client.Item.public_token.exchange(public_token)['access_token']
+        try:
+            income_response = client.Income.get(access_token=access_token)
+
+        except plaid.errors.PlaidError as e:
+            return html.P('There was an error: {}'.format(format_error(e)))
+
+        income_streams = income_response.get('income').get('income_streams')
+
+        income_names = [income['name'] for income in income_streams]
+        income_permonth = [income['monthly_income'] for income in income_streams]
+        income_days = [income['days'] for income in income_streams]
+        income_confidences = [income['confidence'] for income in income_streams]
+        income_lastyear = income_response.get('income').get('last_year_income')
+
+        # print(pretty_response(income_response))
+
+        INCOME_MEAT = []
+        for b in range(len(income_streams)):
+            INCOME_MEAT.append(html.Tr([html.Td(income_names[b]), html.Td(income_permonth[b]),
+                                        html.Td(income_days[b]), html.Td(income_confidences[b])]))
+
+        INCOME = html.Div([
+                    html.Table([
+                        html.Thead([
+                            html.Tr([
+                                html.Th('Name'),
+                                html.Th('Monthly Income'),
+                                html.Th('Days'),
+                                html.Th('Confidence')
+                            ])
+                        ]),
+                        html.Tbody([
+                            *INCOME_MEAT,
+                            html.Tr([html.Td(''), html.Td(''),
+                                     html.Td('Est. Income Last Year'), html.Td(income_lastyear)])
+                        ])
+                    ])
+                ])
+
+        incomes = go.Pie(labels=income_names, values=income_permonth,
+                         hole=.3,
+                         text=['Confidence: {}'.format(confidence) for confidence in income_confidences])
+        layout = dict(title='Categorical Income')
+        transaction_pie = go.Figure(data=[incomes], layout=layout)
+        CATEGORY_INCOME = dcc.Graph(figure=transaction_pie)
+
+        return html.Div([INCOME, CATEGORY_INCOME])
+######################### Income #############################
+
+
+######################### CreditDetails #############################
+@app.callback(Output('credit-container', 'children'),
+              [Input('institution-dropdown', 'value')],
+              )
+def display_credit(public_token):
+    if public_token is None:
+        return "Navigate Plaid Link to Obtain Token"
+    else:
+        access_token = client.Item.public_token.exchange(public_token)['access_token']
+
         try:
             credit_response = client.CreditDetails.get(access_token=access_token)
 
         except plaid.errors.PlaidError as e:
             return html.P('There was an error: {}'.format(format_error(e)))
 
-        print(pretty_response(credit_response))
+        # print(pretty_response(credit_response))
 
         credit_details = credit_response.get('credit_details')[0] # TODO: Will list ever contain 2nd dict?
         credits = credit_details.get('aprs')
@@ -325,108 +521,27 @@ def display_transactions(public_token):
                 ])
             ])
         ])
-        ######################### CreditDetails #############################
 
-        ######################### Auth ############################# TODO: Account Names
-        try:
-            auth_response = client.Auth.get(access_token=access_token)
+        return CREDITS
+######################### CreditDetails #############################
 
-        except plaid.errors.PlaidError as e:
-            return html.P('There was an error: {}'.format(format_error(e)))
 
-        accounts_ach = auth_response.get('numbers').get('ach')
-        accounts_eft = auth_response.get('numbers').get('eft')
-
-        account_numbers = [account['account'] for account in accounts_ach]
-        routing_numbers = [account['routing'] for account in accounts_ach]
-        wire_numbers = [account['wire_routing'] for account in accounts_ach]
-
-        account_numbers.extend([account['routing'] for account in accounts_eft])
-        routing_numbers.extend([account['routing'] for account in accounts_eft])
-        wire_numbers.extend([account['routing'] for account in accounts_eft])
-
-        # print(auth_response)
-
-        ACCOUNT_MEAT = []
-        for c in range(len(accounts_ach)+len(accounts_eft)):
-            ACCOUNT_MEAT.append(html.Tr([html.Td(account_numbers[c]),
-                                         html.Td(routing_numbers[c]),
-                                         ]))
-
-        ACCOUNTS = html.Div([
-                html.Table([
-                    html.Thead([
-                        html.Tr([
-                            html.Th('Account #'),
-                            html.Th('Routing #'),
-                        ])
-                    ]),
-                    html.Tbody([
-                        *ACCOUNT_MEAT,
-                    ])
-                ])
-            ])
-        ######################### Auth #############################
-
-        ######################### Balance #############################
-        try:
-            balance_response = client.Accounts.balance.get(access_token=access_token)
-
-        except plaid.errors.PlaidError as e:
-            return html.P('There was an error: {}'.format(format_error(e)))
-
-        # print(balance_response)
-        ######################### Balance #############################
-
-        ######################### Income #############################
-        try:
-            income_response = client.Income.get(access_token=access_token)
-
-        except plaid.errors.PlaidError as e:
-            return html.P('There was an error: {}'.format(format_error(e)))
-
-        income_streams = income_response.get('income').get('income_streams')
-
-        income_names = [income['name'] for income in income_streams]
-        income_permonth = [income['monthly_income'] for income in income_streams]
-        income_days = [income['days'] for income in income_streams]
-        income_confidence = [income['confidence'] for income in income_streams]
-        income_lastyear = income_response.get('income').get('last_year_income')
-
-        # print(income_response)
-
-        INCOME_MEAT = []
-        for b in range(len(income_streams)):
-            INCOME_MEAT.append(html.Tr([html.Td(income_names[b]), html.Td(income_permonth[b]),
-                                        html.Td(income_days[b]), html.Td(income_confidence[b])]))
-
-        INCOME = html.Div([
-                    html.Table([
-                        html.Thead([
-                            html.Tr([
-                                html.Th('Name'),
-                                html.Th('Monthly Income'),
-                                html.Th('Days'),
-                                html.Th('Confidence')
-                            ])
-                        ]),
-                        html.Tbody([
-                            *INCOME_MEAT,
-                            html.Tr([html.Td(''), html.Td(''),
-                                     html.Td('Est. Income Last Year'), html.Td(income_lastyear)])
-                        ])
-                    ])
-                ])
-        ######################### Income #############################
-
-        ######################### AssetReport ############################# Finicky
+######################### AssetReport #############################
+@app.callback(Output('asset-container', 'children'),
+              [Input('institution-dropdown', 'value')],
+              )
+def display_transactions(public_token):
+    if public_token is None:
+        return "Navigate Plaid Link to Obtain Token"
+    else:
+        access_token = client.Item.public_token.exchange(public_token)['access_token']
         try:
             asset_report_create_response = client.AssetReport.create([access_token], 10)
         except plaid.errors.PlaidError as e:
             return jsonify(
                 {'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type}})
 
-        print(pretty_response(asset_report_create_response))
+        # print(pretty_response(asset_report_create_response))
 
         asset_report_token = asset_report_create_response['asset_report_token']
 
@@ -457,24 +572,18 @@ def display_transactions(public_token):
             return jsonify(
                 {'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type}})
 
-        # TODO: Get pdf
-        # encoded_image = convert_from_bytes(open(asset_report_pdf, "rb").read())
-        # asset_report_png = encoded_image.save("asset_report.png", "PNG")
-        # report_file = 'asset_report.png'
-        # file_base64 = base64.b64encode(open(report_file, 'rb').read()).decode('ascii')
-        # PDF = html.Img(src='data:image/png;base64,{}'.format(file_base64)),
-        ######################### AssetReport #############################
+        # TODO: Display pdf
+        PIL = convert_from_bytes(asset_report_pdf)
+        filename = '/Users/sterlingbutters/odrive/AmazonDrive/PycharmProjects/DashFinance/static/asset_report.png'
+        PIL[0].save(filename, "PNG")
+        PDF = html.Img(src='data:image/png;base64,{}'.format(filename))
 
-        return html.Div([
-                         TRANSACTIONS, html.Br(),
-                         INCOME, html.Br(),
-                         ACCOUNTS, html.Br(),
-                         CREDITS, html.Br(),
-                         # PDF
-                         ])
+        # No Interim
+        # asset_report_png = PIL[0]
+        # PDF = html.Img(src=asset_report_png)
 
-
-##################################################################
+        return PDF
+######################### AssetReport #############################
 
 
 if __name__ == '__main__':
