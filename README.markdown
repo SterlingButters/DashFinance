@@ -7,29 +7,34 @@ The gif WILL play if you give it long enough, its 32 Mb large.
 or test it out on my first ever Heroku deployment:
 https://dashfinance-test.herokuapp.com
 
+# LOOKING for CONTRIBUTORS
+
 ### PreRequisites:
-- [Poppler](http://macappstore.org/poppler/)
+- [Poppler](http://macappstore.org/poppler/): For asset report pdf 
 
 TODO List:
-- Activity Monitoring: Plaid API; Figure out how to implement template into Dash App
+- Fix Heroku
+- [Multi-Page App](https://dash.plot.ly/urls)
+    File structure:
+    ```
+    - main.py
+    - index.py
+    - apps
+       |-- __init__.py
+       |-- bank-accounts.py
+       |-- stock-portfolio.py
+       |-- calculators.py
+    ```
+- `bank-accounts.py`: Institution balances, transactions, credit, etc
+- `stock-portfolio.py`: Virtual portfolio & Market Research (RSS feeds, etc)
+- `calculators.py`: Taxes, Mortgage/Loans, etc
 
-- Store Data; `dcc.Store( )` prevents loading of all subsequent components
-- AuthLogin; doesnt make sense to do until storage is implemented
+- Store Data: `dcc.Store( )` prevents loading of all subsequent components in `stock-portfolio.py`
 
-- Support for correcting entered orders; current implementation only updates
-in position table based on last entry i.e. if you delete an order entry that 
-isn't that last one, the position table will then be incorrect. This was done 
-to avoid too many API calls which REALLY slowed things down. Suggested solutions:
-    1) Find a faster API:
-
-            https://blog.rapidapi.com/best-finance-apis/
-            https://rapidapi.com/collection/stock-market-apis
+-   Wait for AlphaVantage to implement date specification for 
+    data extraction which would significant reduce the time to retrieve data.
     
-    2) Wait for AlphaVantage to implement date specification for 
-    data extraction which would significant reduce the time to retreive data.
-    
-    3) Timestamped cell selection in Dash_Table
-        
+- Support for Sorting/Filtering all Tables
 
 - Get Quotes (not yet implemented in https://github.com/RomelTorres/alpha_vantage) 
 - Annualized Returns
@@ -42,5 +47,5 @@ to avoid too many API calls which REALLY slowed things down. Suggested solutions
         
         https://awardwallet.com/api/loyalty#introduction 
 
-- Place Order (RobinHood only)
-- Finish Loan Calculator
+- AuthLogin on `index.py`
+    **Do last

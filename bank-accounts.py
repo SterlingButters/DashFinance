@@ -49,8 +49,9 @@ app.layout = html.Div([
     # Will lose the data when browser/tab closes.
     dcc.Store(id='public-tokens', storage_type='session', data={'tokens': [], 'institutions': []}),
     # TODO: Handle Expired Tokens (30 min)
-    # TODO: Save credentials and LiveUpdate
+    # TODO: Save credentials and LiveUpdate (credentials retrieved from client.Institutions.get_by_id(auth_response.get('item')...
     dcc.Dropdown(id='institution-dropdown'),
+    # TODO: Use stepper to reveal corresponding children
     sd_material_ui.Stepper(
         id='use-guide',
         activeStep=0,
@@ -66,7 +67,7 @@ app.layout = html.Div([
         product=PLAID_PRODUCTS,
         # institution=)
     ),
-    html.Button('Store current token', id='store-button'), # TODO: Disable until token available
+    html.Button('Store current token', id='store-button'),
     sd_material_ui.Snackbar(id='token-alert', open=False, message='Token Added to Dropdown', action='Select It'),
     html.H1('Accounts & Balances', style=dict()),
     html.Div(id='auth-container'),
@@ -74,8 +75,6 @@ app.layout = html.Div([
     html.Div(id='credit-container'),
     html.H1('Transactions & Spending', style=dict()),
     html.Div(id='transaction-container'),
-    html.H1('Budget & Bills', style=dict()),
-    html.Div(id='budgets-container'),
     html.H1('Income & Cash Flow', style=dict()),
     html.Div(id='income-container'),
     html.H1('Assets & Property', style=dict()),
@@ -120,7 +119,7 @@ def on_click(clicks, public_token, data):
     return data
 
 
-# # Alert User of new Token in Snackbar
+# Alert User of new Token in Snackbar
 @app.callback(
     Output('token-alert', 'open'),
     [Input('store-button', 'n_clicks')],
@@ -134,7 +133,7 @@ def open_snackbar(click: int, data):
             return False
 
 
-# # Select newest token in DropDown for user
+# Select newest token in DropDown for user
 @app.callback(
     Output('institution-dropdown', 'value'),
     [Input('token-alert', 'n_clicks')],
@@ -248,6 +247,7 @@ def display_auth(public_token):
 
 
 ######################### Transactions #############################
+# TODO: Add DatePicker for transaction history
 @app.callback(Output('transaction-container', 'children'),
               [Input('institution-dropdown', 'value')],
 )
@@ -271,14 +271,14 @@ def display_transactions(public_token):
 
         transactions = transaction_response.get('transactions')
 
+        id = [transaction['transaction_id'] for transaction in transactions]
         transaction_names = [transaction['name'] for transaction in transactions]
         categories = [transaction['category'] for transaction in transactions]
         locations = [transaction['location'] for transaction in transactions]
         statuses = [transaction['pending'] for transaction in transactions]
         amounts = [transaction['amount'] for transaction in transactions]
-        # Payment Method: payment_meta
         dates = [transaction['date'] for transaction in transactions]
-        id = [transaction['transaction_id'] for transaction in transactions]
+        # Payment Method: payment_meta
 
         TRANSACTION_MEAT = []
         for b in range(len(transactions)):
@@ -296,8 +296,8 @@ def display_transactions(public_token):
                             html.Th('Amount'),
                             html.Th('Date'),
                             html.Th('Category'),
-                            # html.Th('Location'),
                             html.Th('Pending')
+                            # html.Th('Location'),
                         ])
                     ]),
                     html.Tbody([
@@ -320,7 +320,28 @@ def display_transactions(public_token):
         spending_plot = go.Figure(data=[spending], layout=layout2)
         TIME_SPENDING = dcc.Graph(figure=spending_plot)
 
-        return html.Div([TRANSACTIONS, CATEGORY_SPENDING, TIME_SPENDING])
+        spent_bar = go.Bar(
+            x=[category[0] for category in categories],
+            y=amounts,
+            name='Spent'
+        )
+        budget_bar = go.Bar(
+            x=[category[0] for category in categories], # Since categories are like this: ['Recreation', 'Gyms and Fitness Centers']
+            y=2*np.array(amounts),
+            name='Budgeted'
+        )
+
+        data = [spent_bar, budget_bar]
+        layout = go.Layout(
+            barmode='stack'
+        )
+
+        budget_plot = go.Figure(data=data, layout=layout)
+        BUDGETS = dcc.Graph(figure=budget_plot)
+
+        return html.Div([TRANSACTIONS, CATEGORY_SPENDING, TIME_SPENDING,
+                         html.H1('Budget & Bills', style=dict()),
+                         BUDGETS])
 ######################### Transactions #############################
 
 
@@ -529,7 +550,7 @@ def display_credit(public_token):
 ######################### AssetReport #############################
 @app.callback(Output('asset-container', 'children'),
               [Input('institution-dropdown', 'value')],
-              )
+)
 def display_transactions(public_token):
     if public_token is None:
         return "Navigate Plaid Link to Obtain Token"
@@ -565,7 +586,6 @@ def display_transactions(public_token):
             return jsonify({'error': {'display_message': 'Timed out when polling for Asset Report',
                                       'error_code': e.code, 'error_type': e.type}})
 
-        asset_report_pdf = None
         try:
             asset_report_pdf = client.AssetReport.get_pdf(asset_report_token)
         except plaid.errors.PlaidError as e:
