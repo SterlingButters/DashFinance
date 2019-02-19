@@ -18,7 +18,7 @@ import time
 
 from app import app
 
-with open('/Users/sterlingbutters/.plaid/.credentials.json') as CREDENTIALS:
+with open('.plaid/.credentials.json') as CREDENTIALS:
     KEYS = json.load(CREDENTIALS)
     # print(json.dumps(KEYS, indent=2))
 
