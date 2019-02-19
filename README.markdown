@@ -1,5 +1,5 @@
 # DashFinance
-Test it out on my first ever Heroku deployment (down rn -> working on update):
+Test it out on my first ever Heroku deployment:
 https://dash-finance.herokuapp.com
 
 - Heroku App 

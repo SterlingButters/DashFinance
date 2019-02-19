@@ -42,7 +42,7 @@ def format_error(e):
     return {'error': {'display_message': e.display_message, 'error_code': e.code, 'error_type': e.type} }
 
 
-app.layout = html.Div([
+layout = html.Div([
     # Will lose the data when browser/tab closes.
     dcc.Store(id='public-tokens', storage_type='session', data={'tokens': [], 'institutions': []}),
     # TODO: Handle Expired Tokens (30 min)

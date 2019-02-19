@@ -2,19 +2,21 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
-from apps import bank_accounts, market_research, virtual_portfolio, financial_calculators
+from apps import home, bank_accounts, market_research, virtual_portfolio, financial_calculators
 from app import app
 
 app.layout = html.Div([
-    dcc.Location(id='url', refresh=False),
-    html.Div(id='page-content')
+    dcc.Location(pathname='/apps/home', id='url', refresh=False),
+    html.Div(id='page-content'),
 ])
 
 
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
-    if pathname == '/apps/bank_accounts':
+    if pathname == '/apps/home':
+        return home.layout
+    elif pathname == '/apps/bank_accounts':
         return bank_accounts.layout
     elif pathname == '/apps/market_research':
         return market_research.layout
@@ -28,7 +30,7 @@ def display_page(pathname):
 
 if __name__ == '__main__':
     # Production
-    app.server.run(debug=True, threaded=True)
+    # app.server.run(debug=True, threaded=True)
 
     # Development
-    # app.run_server(debug=True)
+    app.run_server(debug=True)
