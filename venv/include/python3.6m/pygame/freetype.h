@@ -1,0 +1,1 @@
+/Users/sterlingbutters/anaconda3/include/python3.6m/pygame/freetype.h

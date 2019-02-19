@@ -1,7 +1,7 @@
+from random import randint
 import dash
 import flask
 import os
-from random import randint
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 

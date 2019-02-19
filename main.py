@@ -1,8 +1,6 @@
-import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
-
 
 from apps import bank_accounts, market_research, virtual_portfolio, financial_calculators
 from app import app
@@ -25,7 +23,7 @@ def display_page(pathname):
     # elif pathname == '/apps/financial_calculators':
     #     return financial_calculators.layout
     else:
-        return '404'
+        return html.H1('404 Page Not Found')
 
 
 if __name__ == '__main__':
