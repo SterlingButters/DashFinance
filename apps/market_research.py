@@ -1,7 +1,4 @@
-import dash
-import sd_material_ui
 import dash_core_components as dcc
-import dash_table
 import dash_html_components as html
 from dash.dependencies import Output, State, Input
 
@@ -11,36 +8,17 @@ pd.set_option('display.max_columns', 500)
 
 from datetime import datetime as dt
 from datetime import timedelta
-
-import numpy as np
-from random import randint
 import time
-import base64
-import io
-import os
-
-import flask
 
 from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.techindicators import TechIndicators
 ts = TimeSeries(key='9IDB37CDHYIC07UE', output_format='pandas')
 ti = TechIndicators(key='9IDB37CDHYIC07UE', output_format='pandas')
 
-# from index import app
+from app import app
 
-# TODO
-df_symbol = pd.read_csv('tickers.csv')
 
-################################################################################
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
-server = flask.Flask(__name__)
-server.secret_key = os.environ.get('secret_key', str(randint(0, 1000000)))
-app = dash.Dash(__name__, server=server, external_stylesheets=external_stylesheets)
-app.config['suppress_callback_exceptions'] = True
-################################################################################
-
-app.layout = html.Div([
+layout = html.Div([
 
     html.H2('Market Research',
             style={'display': 'inline',
@@ -342,11 +320,3 @@ def update_graph(tickers, startdate, enddate):
             graphs.append(dcc.Graph(figure=fig2))
 
     return graphs
-
-################################################################################
-if __name__ == '__main__':
-    # Production
-    # app.server.run(debug=True, threaded=True)
-
-    # Development
-    app.run_server(debug=True)

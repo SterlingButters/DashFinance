@@ -4,7 +4,6 @@ from dash.exceptions import PreventUpdate
 import plotly.graph_objs as go
 import dash_html_components as html
 import dash_core_components as dcc
-import dash
 import json
 import plaid
 import sd_material_ui
@@ -17,9 +16,7 @@ import plaidash
 import datetime
 import time
 
-stylesheet = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-app = dash.Dash(__name__, external_stylesheets=stylesheet)
-app.config['suppress_callback_exceptions'] = True
+from app import app
 
 with open('/Users/sterlingbutters/.plaid/.credentials.json') as CREDENTIALS:
     KEYS = json.load(CREDENTIALS)
@@ -604,7 +601,3 @@ def display_transactions(public_token):
 
         return PDF
 ######################### AssetReport #############################
-
-
-if __name__ == '__main__':
-    app.run_server(debug=True, dev_tools_hot_reload=False)
