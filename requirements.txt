@@ -6,9 +6,9 @@ flask
 plotly
 plaid-python
 plaidash
-alpha-vantage
 sd-material-ui
 pdf2image
 numpy
 pandas
 gunicorn
+https://github.com/RomelTorres/alpha_vantage/archive/develop.zip
