@@ -6,7 +6,7 @@ from apps import home, bank_accounts, market_research, virtual_portfolio, financ
 from app import app
 
 app.layout = html.Div([
-    dcc.Location(pathname='/apps/virtual_portfolio', id='url', refresh=False),
+    dcc.Location(pathname='/apps/home', id='url', refresh=False),
     html.Div(id='page-content'),
 ])
 
