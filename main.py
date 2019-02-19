@@ -28,7 +28,7 @@ def display_page(pathname):
 
 if __name__ == '__main__':
     # Production
-    # app.server.run(debug=True, threaded=True)
+    app.server.run(debug=True, threaded=True)
 
     # Development
-    app.run_server(debug=True)
+    # app.run_server(debug=True)
