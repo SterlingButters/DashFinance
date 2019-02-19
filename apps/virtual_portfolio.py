@@ -30,7 +30,7 @@ ts = TimeSeries(key='9IDB37CDHYIC07UE', output_format='pandas')
 ti = TechIndicators(key='9IDB37CDHYIC07UE', output_format='pandas')
 
 # TODO
-df_symbol = pd.read_csv('./assets/tickers.csv')
+df_symbol = pd.read_csv('../assets/tickers.csv')
 
 ################################################################################
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -168,7 +168,6 @@ app.layout = html.Div([
             },
         ]
     ),
-    dash_table.DataTable(id='hidden-ledger'),
     dcc.Graph(id='asset-distribution'),
     dcc.Graph(id='value-graph')
 ])
@@ -214,7 +213,7 @@ def nearest(items, pivot):
 
 
 @app.callback(
-    Output('hidden-ledger', 'data'),
+    Output('value-graph', 'figure'),
     [Input('order-table', 'data')]
 )
 def get_holding_times(rows):
@@ -225,7 +224,7 @@ def get_holding_times(rows):
     dates = [row.get('Date') for row in rows]
 
     dict = []
-    mass_dict = []
+    dfs_list = []
 
     if len(tickers) > 0:
         unique_tickers = set(tickers)
@@ -235,9 +234,8 @@ def get_holding_times(rows):
                 if ticker == tickers[i]:
                     idxs.append(i)
 
-            print(idxs)
             for i in idxs:
-
+                print('Loading...')
                 if actions[i] == 'SELL':
                     amounts[i] *= -1
 
@@ -266,25 +264,56 @@ def get_holding_times(rows):
                     basis = amounts[i] / shares
 
                 entry = {'date': dates[i], '{} shares'.format(ticker): shares}
+                dict.append(entry)
 
                 market_data = market_data.reset_index()
                 graph_dates = market_data['date']
                 graph_values = market_data['4. close']  # Change column name to {} value
 
-                dict.append(entry)
-
-            mass_dict.append(graph_dates)
-            mass_dict.append(graph_values)
+            dfs_list.append(pd.DataFrame(
+                {'{} dates'.format(ticker): graph_dates,
+                 '{} values'.format(ticker): graph_values}))
 
     df = pd.DataFrame(dict)
     try:
         df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d', errors='ignore')
-        print(df.set_index('date').sort_index().fillna(value=0)) #.cumsum())
-        print(pd.DataFrame(zip(*mass_dict)))
+
+        # Merge values into single dataframe (did this way to account for inconsistent dates)
+        rec_df = dfs_list[0].set_index(dfs_list[0].columns[0])
+        for dataframe in range(len(dfs_list) - 1):
+            rec_df = pd.merge(left=rec_df, right=dfs_list[dataframe + 1].set_index(dfs_list[dataframe + 1].columns[0]),
+                              left_index=True, right_index=True,
+                              how='outer')
+
+        rec_df = pd.merge(left=rec_df, right=df.set_index('date'),
+                          left_index=True, right_index=True,
+                          how='outer')
+
+        length = int(len(rec_df.columns) / 2)
+        selection = rec_df.columns[-length:]
+
+        rec_df[selection] = rec_df[selection].fillna(value=0).cumsum()
+        rec_df = rec_df.fillna(value=0).reindex(sorted(rec_df.columns), axis=1)
+        # print(rec_df)
+
+        data = []
+        for test in range(int(len(rec_df.columns) / 2)):
+            test_shares = rec_df[rec_df.columns[2*test]]
+            test_values = rec_df[rec_df.columns[2*test+1]]
+            # TODO: change DataFrame 'date' to str instead of datetime
+            value_trace = go.Scatter(x=rec_df.index,
+                                     y=test_shares*test_values)
+
+            data.append(value_trace)
+
+            layout = go.Layout()
+
+            figure = go.Figure(data=data, layout=layout)
+
     except:
         print('This messages gets rid of pesky panda key error')
 
-    return dict
+    return figure
 
 
 def get_market(ticker, date):
@@ -303,149 +332,149 @@ def get_market(ticker, date):
     return market
 
 
-# @app.callback(
-#     Output('computed-table', 'data'),
-#     [Input('order-table', 'data')],
-#     [State('order-table', 'data_previous'),
-#      State('computed-table', 'data')])
-# def compute_positions(current_data, previous_data, comp_data):
-#     tickers = [row.get('Ticker') for row in current_data]
-#     actions = [row.get('Action') for row in current_data]
-#     units = [row.get('Unit') for row in current_data]
-#     amounts = [float(row.get('Amount')) for row in current_data]
-#     dates = [row.get('Date') for row in current_data]
-#     times = [row.get('Time') for row in current_data]
-#
-#     positions = [row.get('Position') for row in comp_data]
-#     quantity = [row.get('Shares') for row in comp_data]
-#     values = [row.get('Value') for row in comp_data]
-#     basises = [row.get('Basis') for row in comp_data]
-#     gain_losses = [row.get('GainLoss') for row in comp_data]
-#
-#     # TODO: Update in efficient way by evaluating changed data only (Significant Effort)
-#     # if len(current_data) > 0 and previous_data is not None:
-#     #     print(current_data)
-#     #     for entry in range(len(current_data)):
-#     #         if current_data[entry] != previous_data[entry]:
-#     #             print(entry)
-#
-#     # All (slow)
-#     temp_data = []
-#
-#     if len(current_data) > 0:
-#         for i in range(len(current_data)):
-#             print('Loading Computed Table...')
-#             temp_positions = [row.get('Position') for row in temp_data]
-#             temp_quantity = [row.get('Shares') for row in temp_data]
-#             temp_values = [row.get('Value') for row in temp_data]
-#             temp_basises = [row.get('Basis') for row in temp_data]
-#             temp_gain_losses = [row.get('GainLoss') for row in temp_data]
-#
-#             observed = [tickers[i], actions[i], units[i], amounts[i], dates[i]]
-#             # Will not evaluate the observed entry if it is missing information
-#             if all(e is not None for e in observed) & (amounts[i] != 0):
-#
-#                 if actions[i] == 'SELL':
-#                     amounts[i] *= -1
-#
-#                 market_then = get_market(tickers[i], dates[i])
-#
-#                 now = str(dt.date(dt.now()))
-#
-#                 market_now = get_market(tickers[i], now)
-#
-#                 if units[i] == 'SHARES':
-#                     value = amounts[i] * market_now
-#                     shares = amounts[i]
-#                     basis = amounts[i] * market_then / shares
-#                 else:
-#                     shares = amounts[i] / market_then
-#                     value = shares * market_now
-#                     basis = amounts[i] / shares
-#
-#                 gain_loss = value - basis
-#
-#                 if len(positions) > 0:
-#                     try:
-#                         p = positions.index(tickers[i])
-#                         values[p] += value
-#                         quantity[p] += shares
-#                         basises[p] += basis
-#                         gain_losses[p] += gain_loss
-#
-#                         comp_data[p] = {'Position': positions[p], 'Type': 'Stock', 'Shares': quantity[p],
-#                                         'Value': values[p], 'Basis': basis, 'GainLoss': gain_losses[p]}
-#                     except:
-#                         comp_data.append(
-#                             {'Position': tickers[i], 'Type': 'Stock', 'Shares': shares, 'Value': value, 'Basis': basis,
-#                              'GainLoss': gain_loss})
-#
-#                 else:
-#                     try:
-#                         p = temp_positions.index(tickers[i])
-#                         temp_values[p] += value
-#                         temp_quantity[p] += shares
-#                         temp_basises[p] += basis
-#                         temp_gain_losses[p] += gain_loss
-#
-#                         temp_data[p] = {'Position': temp_positions[p], 'Type': 'Stock', 'Shares': temp_quantity[p],
-#                                             'Value': temp_values[p], 'Basis': temp_basises, 'GainLoss': temp_gain_losses[p]}
-#                     except:
-#                         temp_data.append(
-#                             {'Position': tickers[i], 'Type': 'Stock', 'Shares': shares, 'Value': value, 'Basis': basis,
-#                              'GainLoss': gain_loss})
-#
-#     comp_data.extend(temp_data)
-#     return comp_data
+@app.callback(
+    Output('computed-table', 'data'),
+    [Input('order-table', 'data')],
+    [State('order-table', 'data_previous'),
+     State('computed-table', 'data')])
+def compute_positions(current_data, previous_data, comp_data):
+    tickers = [row.get('Ticker') for row in current_data]
+    actions = [row.get('Action') for row in current_data]
+    units = [row.get('Unit') for row in current_data]
+    amounts = [float(row.get('Amount')) for row in current_data]
+    dates = [row.get('Date') for row in current_data]
+    times = [row.get('Time') for row in current_data]
+
+    positions = [row.get('Position') for row in comp_data]
+    quantity = [row.get('Shares') for row in comp_data]
+    values = [row.get('Value') for row in comp_data]
+    basises = [row.get('Basis') for row in comp_data]
+    gain_losses = [row.get('GainLoss') for row in comp_data]
+
+    # TODO: Update in efficient way by evaluating changed data only (Significant Effort)
+    # if len(current_data) > 0 and previous_data is not None:
+    #     print(current_data)
+    #     for entry in range(len(current_data)):
+    #         if current_data[entry] != previous_data[entry]:
+    #             print(entry)
+
+    # All (slow)
+    temp_data = []
+
+    if len(current_data) > 0:
+        for i in range(len(current_data)):
+            print('Loading Computed Table...')
+            temp_positions = [row.get('Position') for row in temp_data]
+            temp_quantity = [row.get('Shares') for row in temp_data]
+            temp_values = [row.get('Value') for row in temp_data]
+            temp_basises = [row.get('Basis') for row in temp_data]
+            temp_gain_losses = [row.get('GainLoss') for row in temp_data]
+
+            observed = [tickers[i], actions[i], units[i], amounts[i], dates[i]]
+            # Will not evaluate the observed entry if it is missing information
+            if all(e is not None for e in observed) & (amounts[i] != 0):
+
+                if actions[i] == 'SELL':
+                    amounts[i] *= -1
+
+                market_then = get_market(tickers[i], dates[i])
+
+                now = str(dt.date(dt.now()))
+
+                market_now = get_market(tickers[i], now)
+
+                if units[i] == 'SHARES':
+                    value = amounts[i] * market_now
+                    shares = amounts[i]
+                    basis = amounts[i] * market_then / shares
+                else:
+                    shares = amounts[i] / market_then
+                    value = shares * market_now
+                    basis = amounts[i] / shares
+
+                gain_loss = value - basis
+
+                if len(positions) > 0:
+                    try:
+                        p = positions.index(tickers[i])
+                        values[p] += value
+                        quantity[p] += shares
+                        basises[p] += basis
+                        gain_losses[p] += gain_loss
+
+                        comp_data[p] = {'Position': positions[p], 'Type': 'Stock', 'Shares': quantity[p],
+                                        'Value': values[p], 'Basis': basis, 'GainLoss': gain_losses[p]}
+                    except:
+                        comp_data.append(
+                            {'Position': tickers[i], 'Type': 'Stock', 'Shares': shares, 'Value': value, 'Basis': basis,
+                             'GainLoss': gain_loss})
+
+                else:
+                    try:
+                        p = temp_positions.index(tickers[i])
+                        temp_values[p] += value
+                        temp_quantity[p] += shares
+                        temp_basises[p] += basis
+                        temp_gain_losses[p] += gain_loss
+
+                        temp_data[p] = {'Position': temp_positions[p], 'Type': 'Stock', 'Shares': temp_quantity[p],
+                                            'Value': temp_values[p], 'Basis': temp_basises, 'GainLoss': temp_gain_losses[p]}
+                    except:
+                        temp_data.append(
+                            {'Position': tickers[i], 'Type': 'Stock', 'Shares': shares, 'Value': value, 'Basis': basis,
+                             'GainLoss': gain_loss})
+
+    comp_data.extend(temp_data)
+    return comp_data
 
 
 ################################################################################
 
-# @app.callback(
-#     Output('asset-distribution', 'figure'),
-#     [Input('computed-table', 'data'),
-#      Input('asset-distribution', 'hoverData')]
-# )
-# def update_pie(rows, hoverdata):
-#     positions = [row.get('Position') for row in rows]
-#     shares = [row.get('Shares') for row in rows]
-#     values = [row.get('Value') for row in rows]
-#
-#     selected_position = None
-#     if hoverdata:
-#         selected_position = hoverdata['points'][0]['label']
-#
-#     pull = np.zeros(len(positions))
-#     for p in range(len(positions)):
-#         if selected_position == positions[p]:
-#             pull[p] = .05
-#         else:
-#             pull[p] = 0
-#
-#     pie = go.Pie(values=values,
-#                  labels=positions,
-#                  hoverinfo="label+percent+name",
-#                  hole=.5,
-#                  pull=pull,
-#                  rotation=0  # -360 : +360
-#                  )
-#
-#     layout = go.Layout(title="Asset Distribution",
-#                        width=1000,
-#                        height=1000,
-#                        annotations=[
-#                            dict(
-#                                font=dict(size=40),
-#                                showarrow=False,
-#                                text="Total: ${}".format(round(float(np.sum(np.array(values))), 2)),
-#                                x=.50,
-#                                y=.50,
-#                            ), ],
-#                        )
-#
-#     data = [pie]
-#     fig = go.Figure(data=data, layout=layout)
-#     return fig
+@app.callback(
+    Output('asset-distribution', 'figure'),
+    [Input('computed-table', 'data'),
+     Input('asset-distribution', 'hoverData')]
+)
+def update_pie(rows, hoverdata):
+    positions = [row.get('Position') for row in rows]
+    shares = [row.get('Shares') for row in rows]
+    values = [row.get('Value') for row in rows]
+
+    selected_position = None
+    if hoverdata:
+        selected_position = hoverdata['points'][0]['label']
+
+    pull = np.zeros(len(positions))
+    for p in range(len(positions)):
+        if selected_position == positions[p]:
+            pull[p] = .05
+        else:
+            pull[p] = 0
+
+    pie = go.Pie(values=values,
+                 labels=positions,
+                 hoverinfo="label+percent+name",
+                 hole=.5,
+                 pull=pull,
+                 rotation=0  # -360 : +360
+                 )
+
+    layout = go.Layout(title="Asset Distribution",
+                       width=1000,
+                       height=1000,
+                       annotations=[
+                           dict(
+                               font=dict(size=40),
+                               showarrow=False,
+                               text="Total: ${}".format(round(float(np.sum(np.array(values))), 2)),
+                               x=.50,
+                               y=.50,
+                           ), ],
+                       )
+
+    data = [pie]
+    fig = go.Figure(data=data, layout=layout)
+    return fig
 
 
 if __name__ == '__main__':

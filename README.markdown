@@ -36,6 +36,9 @@ TODO List:
     
 - Support for Sorting/Filtering all Tables
 
+- Would like to get a review/feedback on `virtual_portfolio` or do a complete code rewrite. Logic is 
+a bit confusing and results were obtained abstractly (by opinion)
+
 - Get Quotes (not yet implemented in https://github.com/RomelTorres/alpha_vantage) 
 - Annualized Returns
 - Biggest movers
