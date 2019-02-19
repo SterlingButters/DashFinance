@@ -1,6 +1,7 @@
 dash-core-components
 dash-html-components
 dash-table
+dash-daq
 dash
 flask
 plotly
@@ -10,5 +11,6 @@ sd-material-ui
 pdf2image
 numpy
 pandas
+xlrd
 gunicorn
 https://github.com/RomelTorres/alpha_vantage/archive/develop.zip

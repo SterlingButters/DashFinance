@@ -41,15 +41,15 @@ layout = html.Div([
                    'margin-bottom': '0'
                    }),
     html.Div(style=dict(height=75)),
-    html.Img(src="",
-             style={
-                 'height': '100px',
-                 'float': 'right'
-             }),
 
     html.P("""The orders table currently only supports evaluation if you upload your orders FIRST,
      i.e. if you add orders manually and then try to upload, it will not work correctly... for now. 
-     However, you MAY upload orders and then add additional ones manually"""),
+     However, you MAY upload orders and then add additional ones manually. 
+     
+     Please excuse the amount of time it takes to update the evaluation. Results can take upwards of several 
+     minutes. This is due to current API limits since specified date extraction methods dont currently exist 
+     so 20 years of data needs to be obtained for even single date. It is hoped AlphaVantage will support
+     this soon."""),
 
     dcc.Upload(
         id='orders-upload',
@@ -263,8 +263,6 @@ def get_holding_times(rows):
 
     df = pd.DataFrame(dict)
     try:
-        df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d', errors='ignore')
-
         # Merge values into single dataframe (did this way to account for inconsistent dates)
         rec_df = dfs_list[0].set_index(dfs_list[0].columns[0])
         for dataframe in range(len(dfs_list) - 1):
@@ -289,7 +287,8 @@ def get_holding_times(rows):
             test_values = rec_df[rec_df.columns[2*test+1]]
             # TODO: change DataFrame 'date' to str instead of datetime
             value_trace = go.Scatter(x=rec_df.index,
-                                     y=test_shares*test_values)
+                                     y=test_shares*test_values,
+                                     name='{}'.format(rec_df.columns[2*test]))
 
             data.append(value_trace)
 

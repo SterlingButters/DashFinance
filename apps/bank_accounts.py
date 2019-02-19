@@ -13,7 +13,8 @@ import os
 import numpy as np
 from flask import jsonify
 import plaidash
-import datetime
+from datetime import datetime as dt
+from datetime import timedelta
 import time
 
 from app import app
@@ -46,7 +47,8 @@ layout = html.Div([
     # Will lose the data when browser/tab closes.
     dcc.Store(id='public-tokens', storage_type='session', data={'tokens': [], 'institutions': []}),
     # TODO: Handle Expired Tokens (30 min)
-    # TODO: Save credentials and LiveUpdate (credentials retrieved from client.Institutions.get_by_id(auth_response.get('item')...
+    # TODO: Save credentials (credentials retrieved from
+    #  client.Institutions.get_by_id(auth_response.get('item')...
     dcc.Dropdown(id='institution-dropdown'),
     # TODO: Use stepper to reveal corresponding children
     sd_material_ui.Stepper(
@@ -68,12 +70,22 @@ layout = html.Div([
     sd_material_ui.Snackbar(id='token-alert', open=False, message='Token Added to Dropdown', action='Select It'),
     html.H1('Accounts & Balances', style=dict()),
     html.Div(id='auth-container'),
+
     html.H1('Credit & Loans', style=dict()),
     html.Div(id='credit-container'),
+
     html.H1('Transactions & Spending', style=dict()),
+    dcc.DatePickerRange(id='transaction-history',
+                        max_date_allowed=dt.date(dt.today()),
+                        start_date=dt.date(dt.today()) - timedelta(days=60),
+                        end_date=dt.date(dt.today()),
+                        calendar_orientation='vertical',
+                        ),
     html.Div(id='transaction-container'),
+
     html.H1('Income & Cash Flow', style=dict()),
     html.Div(id='income-container'),
+
     html.H1('Assets & Property', style=dict()),
     html.Div(id='asset-container'),
 ])
@@ -244,18 +256,17 @@ def display_auth(public_token):
 
 
 ######################### Transactions #############################
-# TODO: Add DatePicker for transaction history
 @app.callback(Output('transaction-container', 'children'),
-              [Input('institution-dropdown', 'value')],
+              [Input('institution-dropdown', 'value'),
+               Input('transaction-history', 'start_date'),
+               Input('transaction-history', 'end_date'),
+               ],
 )
-def display_transactions(public_token):
+def display_transactions(public_token, start_date, end_date):
     if public_token is None:
         return "Navigate Plaid Link to Obtain Token"
     else:
         access_token = client.Item.public_token.exchange(public_token)['access_token']
-
-        start_date = '{:%Y-%m-%d}'.format(datetime.datetime.now() + datetime.timedelta(-30))
-        end_date = '{:%Y-%m-%d}'.format(datetime.datetime.now())
 
         try:
             transaction_response = client.Transactions.get(

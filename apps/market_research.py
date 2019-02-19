@@ -1,9 +1,11 @@
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Output, State, Input
-
+import dash_daq as daq
+import sd_material_ui
 import plotly.graph_objs as go
 import pandas as pd
+
 pd.set_option('display.max_columns', 500)
 
 from datetime import datetime as dt
@@ -12,11 +14,11 @@ import time
 
 from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.techindicators import TechIndicators
+
 ts = TimeSeries(key='9IDB37CDHYIC07UE', output_format='pandas')
 ti = TechIndicators(key='9IDB37CDHYIC07UE', output_format='pandas')
 
 from app import app
-
 
 layout = html.Div([
 
@@ -36,12 +38,10 @@ layout = html.Div([
              style={
                  'height': '100px',
                  'float': 'right'
-             },),
+             }, ),
 
     html.Div([html.Br(), html.Br(), html.Br(),
-    html.P('''Welcome to finance explorer. There is much left to be developed and I very much wish to find a faster API. 
-    Unfortunately, it is likely you will notice the amount of time it takes to retreive data... it is EXTREMELY SLOW (~45 s). This could be from limits
-    set by the API, current internet connection at time of testing, etc. Please enjoy everything else :)'''),]),
+              html.P('''Greeting Message'''), ]),
 
     # dcc.Store(id='ticker-options-memory', storage_type='local'), # For DropDown Options
     # dcc.Store(id='ticker-selection-memory', storage_type='session'), # For DropDown Values
@@ -105,69 +105,102 @@ layout = html.Div([
     ),
 
     html.Br(),
+    html.Button('Show Indicators', id='show-indicators-btn'),
+    sd_material_ui.Drawer(id='indicators-drawer', width='20%', docked=False, openSecondary=True,
+                          children=sd_material_ui.Paper([
+                              daq.BooleanSwitch(label='Simple Moving Average', id='0', on=False, labelPosition='right'),
+                              daq.BooleanSwitch(label='Exponential Moving Average', id='1', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Weighted Moving Average', id='2', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Double Exponential Moving Average', id='3', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Triple Exponential Moving Average', id='4', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Triangular Moving Average', id='5', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Kaufman Adaptive Moving Average', id='6', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='MESA Adaptive Moving Average', id='7', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Triple Exponential Moving Average', id='8', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Moving Average Convergence/Divergence', id='9', on=False,
+                                                labelPosition='right'),
+                              # {'daq.BooleanSwitch(label'='', id='', on=False, labelPosition='right'), MACDEXT
+                              daq.BooleanSwitch(label='Stochastic Oscillator Values', id='10', on=False,
+                                                labelPosition='right'),
+                              # {'daq.BooleanSwitch(label'='', id='', on=False, labelPosition='right'), STOCHF
+                              daq.BooleanSwitch(label='Relative Strength Index', id='11', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Stochastic Relative Strength Index', id='12', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Williams %R Values', id='13', on=False, labelPosition='right'),
+                              daq.BooleanSwitch(label='Average Directional Movement Index', id='14', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Absolute Price Oscillator Values', id='15', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Percentage Price Oscillator Values', id='16', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Momentum Values', id='17', on=False, labelPosition='right'),
+                              daq.BooleanSwitch(label='Balance of Power Values', id='18', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Commodity Channel Index', id='19', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Chande Momentum Oscillator Values', id='20', on=False,
+                                                labelPosition='right'),
+                              # {'daq.BooleanSwitch(label'='Rate of Change Values', id='', on=False, labelPosition='right'), # Save as default indicator
+                              daq.BooleanSwitch(label='AROON Values', id='21', on=False, labelPosition='right'),
+                              daq.BooleanSwitch(label='AROON OScillator Values', id='22', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Money Flow Index', id='23', on=False, labelPosition='right'),
+                              # {'daq.BooleanSwitch(label'='', id='', on=False, labelPosition='right'), TRIX
+                              daq.BooleanSwitch(label='Ultimate Oscillator Values', id='24', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Directional Movement Index', id='25', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Minus Directional Indicator Values', id='26', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Plus Directional Indicator Values', id='27', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Minus Directional Movement Values', id='28', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Plus Directional Movement Values', id='29', on=False,
+                                                labelPosition='right'),
+                              # {'daq.BooleanSwitch(label'='', id='', on=False, labelPosition='right'), # BBands by default
+                              daq.BooleanSwitch(label='Midpoint Values', id='30', on=False, labelPosition='right'),
+                              daq.BooleanSwitch(label='Midprice Values', id='31', on=False, labelPosition='right'),
+                              daq.BooleanSwitch(label='Parabolic SAR Values', id='32', on=False, labelPosition='right'),
+                              daq.BooleanSwitch(label='True Range Values', id='33', on=False, labelPosition='right'),
+                              daq.BooleanSwitch(label='Average True Range Values', id='34', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Normalized Average True Range Values', id='35', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Chaikin A/D Line Values', id='36', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Chaikin A/D Oscialltor Values', id='37', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='On-balance Volume Values', id='38', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Hilbert Transform', id='39', on=False, labelPosition='right'),
+                              daq.BooleanSwitch(label='Hilbert Transform: Sine Wave', id='40', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Hilbert Transform: Trend vs Cycle', id='41', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Hilbert Transform: Dominant Cycle Period', id='42', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Hilbert Transform: Dominant Cycle Phase', id='43', on=False,
+                                                labelPosition='right'),
+                              daq.BooleanSwitch(label='Hilbert Transform: Phasor Components', id='44', on=False,
+                                                labelPosition='right'),
+                          ])),
     html.Div(id='market-graph'),
-    html.Div(id='debug')
 
-    # dcc.Checklist(
-    #     options=[
-    #         {'label': 'Simple Moving Average', 'value': '0'},
-    #         {'label': 'Exponential Moving Average', 'value': '1'},
-    #         {'label': 'Weighted Moving Average', 'value': '2'},
-    #         {'label': 'Double Exponential Moving Average', 'value': '3'},
-    #         {'label': 'Triple Exponential Moving Average', 'value': '4'},
-    #         {'label': 'Triangular Moving Average', 'value': '5'},
-    #         {'label': 'Kaufman Adaptive Moving Average', 'value': '6'},
-    #         {'label': 'MESA Adaptive Moving Average', 'value': '7'},
-    #         {'label': 'Triple Exponential Moving Average', 'value': '8'},
-    #         {'label': 'Moving Average Convergence/Divergence', 'value': '9'},
-    #         # {'label': '', 'value': ''}, MACDEXT
-    #         {'label': 'Stochastic Oscillator Values', 'value': '10'},
-    #         # {'label': '', 'value': ''}, STOCHF
-    #         {'label': 'Relative Strength Index', 'value': '11'},
-    #         {'label': 'Stochastic Relative Strength Index', 'value': '12'},
-    #         {'label': 'Williams %R Values', 'value': '13'},
-    #         {'label': 'Average Directional Movement Index', 'value': '14'},
-    #         {'label': 'Absolute Price Oscillator Values', 'value': '15'},
-    #         {'label': 'Percentage Price Oscillator Values', 'value': '16'},
-    #         {'label': 'Momentum Values', 'value': '17'},
-    #         {'label': 'Balance of Power Values', 'value': '18'},
-    #         {'label': 'Commodity Channel Index', 'value': '19'},
-    #         {'label': 'Chande Momentum Oscillator Values', 'value': '20'},
-    #         # {'label': 'Rate of Change Values', 'value': ''}, # Save as default indicator
-    #         {'label': 'AROON Values', 'value': '21'},
-    #         {'label': 'AROON OScillator Values', 'value': '22'},
-    #         {'label': 'Money Flow Index', 'value': '23'},
-    #         # {'label': '', 'value': ''}, TRIX
-    #         {'label': 'Ultimate Oscillator Values', 'value': '24'},
-    #         {'label': 'Directional Movement Index', 'value': '25'},
-    #         {'label': 'Minus Directional Indicator Values', 'value': '26'},
-    #         {'label': 'Plus Directional Indicator Values', 'value': '27'},
-    #         {'label': 'Minus Directional Movement Values', 'value': '28'},
-    #         {'label': 'Plus Directional Movement Values', 'value': '29'},
-    #         # {'label': '', 'value': ''}, # BBands by default
-    #         {'label': 'Midpoint Values', 'value': '30'},
-    #         {'label': 'Midprice Values', 'value': '31'},
-    #         {'label': 'Parabolic SAR Values', 'value': '32'},
-    #         {'label': 'True Range Values', 'value': '33'},
-    #         {'label': 'Average True Range Values', 'value': '34'},
-    #         {'label': 'Normalized Average True Range Values', 'value': '35'},
-    #         {'label': 'Chaikin A/D Line Values', 'value': '36'},
-    #         {'label': 'Chaikin A/D Oscialltor Values', 'value': '37'},
-    #         {'label': 'On-balance Volume Values', 'value': '38'},
-    #         {'label': 'Hilbert Transform', 'value': '39'},
-    #         {'label': 'Hilbert Transform: Sine Wave', 'value': '40'},
-    #         {'label': 'Hilbert Transform: Trend vs Cycle', 'value': '41'},
-    #         {'label': 'Hilbert Transform: Dominant Cycle Period', 'value': '42'},
-    #         {'label': 'Hilbert Transform: Dominant Cycle Phase', 'value': '43'},
-    #         {'label': 'Hilbert Transform: Phasor Components', 'value': '44'},
-    #     ],
-    #     values=['32', '1', '10'],
-    #     style={'vertical-align': 'right'}
-    # )
 ])
 
-
+# TODO: LiveUpdate
 ################################################################################
+
 
 # TODO: Consider adding results to text file
 @app.callback(
@@ -190,13 +223,23 @@ def create_dropdown(n_clicks, keyword, options):
 
 
 @app.callback(
-    Output('market-graph', 'children'),
-   [Input('stock-ticker-input', 'value'),
-    Input('date-picker-range', 'start_date'),
-    Input('date-picker-range', 'end_date'),
-])
-def update_graph(tickers, startdate, enddate):
+    Output('indicators-drawer', 'open'),
+    [Input('show-indicators-btn', 'n_clicks')],
+    [State('indicators-drawer', 'open')]
+)
+def display_clicks_flat(open_clicks: int, state):
+    if open_clicks:
+        if not state:
+            return True
 
+
+@app.callback(
+    Output('market-graph', 'children'),
+    [Input('stock-ticker-input', 'value'),
+     Input('date-picker-range', 'start_date'),
+     Input('date-picker-range', 'end_date'),
+     ])
+def update_graph(tickers, startdate, enddate):
     graphs = []
 
     if tickers is not None:
@@ -215,15 +258,15 @@ def update_graph(tickers, startdate, enddate):
             while data2 is None:
                 try:
                     data2, meta2 = ti.get_bbands(symbol='{}'.format(ticker), interval='daily', time_period=60,
-                                             series_type='close',
-                                             nbdevup=None, nbdevdn=None, matype=None)
+                                                 series_type='close',
+                                                 nbdevup=None, nbdevdn=None, matype=None)
                 except:
                     pass
                     time.sleep(3)
 
             while data3 is None:
                 try:
-                    data3, meta3 = ts.get_intraday(symbol='{}'.format(ticker),interval='1min', outputsize='full')
+                    data3, meta3 = ts.get_intraday(symbol='{}'.format(ticker), interval='1min', outputsize='full')
                 except:
                     pass
                     time.sleep(3)
@@ -244,9 +287,9 @@ def update_graph(tickers, startdate, enddate):
                                    line=dict(
                                        width=1,
                                        color='rgb(150, 150, 150)'
-                                       ),
+                                   ),
                                    name='Real Middle Band'
-                                )
+                                   )
 
             bband_low = go.Scatter(x=period['date'],
                                    y=period['Real Upper Band'],
@@ -256,19 +299,19 @@ def update_graph(tickers, startdate, enddate):
                                        color='rgb(150, 150, 150)'
                                    ),
                                    name='Real Upper Band'
-                                )
+                                   )
 
             bband_high = go.Scatter(x=period['date'],
-                                   y=period['Real Lower Band'],
-                                   mode='lines',
-                                   line=dict(
-                                       width=1,
-                                       color='rgb(150, 150, 150)'
-                                   ),
-                                   name='Real Lower Band'
-                                )
+                                    y=period['Real Lower Band'],
+                                    mode='lines',
+                                    line=dict(
+                                        width=1,
+                                        color='rgb(150, 150, 150)'
+                                    ),
+                                    name='Real Lower Band'
+                                    )
 
-            candlesticks = go.Candlestick(x=period['date'], # or go.Ohlc
+            candlesticks = go.Candlestick(x=period['date'],  # or go.Ohlc
                                           open=period['1. open'],
                                           high=period['2. high'],
                                           low=period['3. low'],
@@ -284,35 +327,35 @@ def update_graph(tickers, startdate, enddate):
                             name='Volume')
 
             can = go.Candlestick(x=data3['date'],  # or go.Ohlc
-                                          open=data3['1. open'],
-                                          high=data3['2. high'],
-                                          low=data3['3. low'],
-                                          close=data3['4. close'],
-                                          name='Candlestick')
+                                 open=data3['1. open'],
+                                 high=data3['2. high'],
+                                 low=data3['3. low'],
+                                 close=data3['4. close'],
+                                 name='Candlestick')
 
             vol = go.Bar(x=data3['date'],
-                            y=data3['5. volume'],
-                            yaxis='y2',
-                            marker=dict(
-                                color='rgb(204,204,204)'),
-                            opacity=.3,
-                            name='Volume')
+                         y=data3['5. volume'],
+                         yaxis='y2',
+                         marker=dict(
+                             color='rgb(204,204,204)'),
+                         opacity=.3,
+                         name='Volume')
 
             layout = go.Layout(
-                    title='{}'.format(ticker),
-                    width=1250,
-                    height=750,
-                    xaxis=dict(),
-                    yaxis=dict(
-                        title='Value $USD',
-                    ),
-                    yaxis2=dict(
-                        title='Volume',
-                        overlaying='y',
-                        side='right',
-                        # anchor='free'
-                    )
+                title='{}'.format(ticker),
+                width=1250,
+                height=750,
+                xaxis=dict(),
+                yaxis=dict(
+                    title='Value $USD',
+                ),
+                yaxis2=dict(
+                    title='Volume',
+                    overlaying='y',
+                    side='right',
+                    # anchor='free'
                 )
+            )
             fig = go.Figure(data=[bband_mid, bband_low, bband_high, candlesticks, volume], layout=layout)
             fig2 = go.Figure(data=[can, vol], layout=layout)
 
