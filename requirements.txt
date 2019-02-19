@@ -4,7 +4,7 @@ dash-table
 dash
 flask
 plotly
-python-plaid
+plaid-python
 plaidash
 alpha-vantage
 sd-material-ui
