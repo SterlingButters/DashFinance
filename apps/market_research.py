@@ -34,17 +34,9 @@ layout = html.Div([
                    'margin-bottom': '0'
                    }),
 
-    html.Img(src="",
-             style={
-                 'height': '100px',
-                 'float': 'right'
-             }, ),
-
     html.Div([html.Br(), html.Br(), html.Br(),
               html.P('''Greeting Message'''), ]),
 
-    # dcc.Store(id='ticker-options-memory', storage_type='local'), # For DropDown Options
-    # dcc.Store(id='ticker-selection-memory', storage_type='session'), # For DropDown Values
     html.Div([
         html.Div([
             dcc.Dropdown(
@@ -345,7 +337,7 @@ def update_graph(tickers, startdate, enddate):
                 title='{}'.format(ticker),
                 width=1250,
                 height=750,
-                xaxis=dict(),
+                xaxis=dict(type='category'),
                 yaxis=dict(
                     title='Value $USD',
                 ),

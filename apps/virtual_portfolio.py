@@ -120,7 +120,6 @@ layout = html.Div([
     html.Br(),
 
     ####################################
-    html.Div(id='debug'),
     dash_table.DataTable(
         id='computed-table',
         columns=[

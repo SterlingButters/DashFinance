@@ -2,11 +2,11 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
-from apps import home, bank_accounts, market_research, virtual_portfolio, financial_calculators
+from apps import start_page, bank_accounts, market_research, virtual_portfolio, financial_calculators
 from app import app
 
 app.layout = html.Div([
-    dcc.Location(pathname='/apps/home', id='url', refresh=False),
+    dcc.Location(pathname='/apps/start_page', id='url', refresh=False),
     html.Div(id='page-content'),
 ])
 
@@ -14,16 +14,16 @@ app.layout = html.Div([
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
 def display_page(pathname):
-    if pathname == '/apps/home':
-        return home.layout
+    if pathname == '/apps/start_page':
+        return start_page.layout
     elif pathname == '/apps/bank_accounts':
         return bank_accounts.layout
     elif pathname == '/apps/market_research':
         return market_research.layout
     elif pathname == '/apps/virtual_portfolio':
         return virtual_portfolio.layout
-    # elif pathname == '/apps/financial_calculators':
-    #     return financial_calculators.layout
+    elif pathname == '/apps/financial_calculators':
+        return financial_calculators.layout
     else:
         return html.H1('404 Page Not Found')
 
